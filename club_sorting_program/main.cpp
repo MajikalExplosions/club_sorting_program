@@ -18,7 +18,8 @@
 #include <lemon/list_graph.h>
 
 
-#include "DataReader.cpp"
+#include "DataReader.h"
+#include "Club.h"
 
 #define MAX_FILES 40
 #define CLUB_CAPACITY 20

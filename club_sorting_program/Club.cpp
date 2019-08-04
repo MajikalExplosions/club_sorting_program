@@ -2,21 +2,9 @@
 
 #include <string>
 #include <vector>
+#include "Club.h"
 
 using namespace std;
-
-class Club {
-    string m_club_name;
-    int m_week;
-public:
-    Club(string, string);
-    
-    bool isA();
-    bool isB();
-    bool isAB();
-    bool inA();
-    bool inB();
-};
 
 Club::Club(string name, string w) {
     m_club_name = name;

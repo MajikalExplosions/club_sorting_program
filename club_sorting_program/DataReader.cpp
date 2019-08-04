@@ -6,20 +6,10 @@
 #include <iostream>
 #include <fstream>
 
-#include "Club.cpp"
+#include "DataReader.h"
+#include "Club.h"
 
 using namespace std;
-
-class DataFile {
-    string m_file_name, m_file_path;
-    vector<Club> m_clubs;
-    vector<string> m_student_names;
-    vector<vector<int>> m_club_choices;
-    public:
-    DataFile(string, string);
-    void readFile();
-    string choice(int, int);
-};
 
 DataFile::DataFile (string currentPath, string fileName) {
     m_file_name = fileName;

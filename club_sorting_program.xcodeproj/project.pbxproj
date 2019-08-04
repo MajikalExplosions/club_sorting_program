@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7C2B5F5022C2858D00635686 /* Club.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7C2B5F4F22C2858D00635686 /* Club.cpp */; };
+		7C37150422D6983600730913 /* Student.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7C37150222D6983600730913 /* Student.cpp */; };
 		7C39BE962295A385004D7974 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7C39BE952295A385004D7974 /* main.cpp */; };
 		7C9D162822C1591F0027250C /* DataReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7C9D162722C1591F0027250C /* DataReader.cpp */; };
 /* End PBXBuildFile section */
@@ -26,8 +27,12 @@
 
 /* Begin PBXFileReference section */
 		7C2B5F4F22C2858D00635686 /* Club.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Club.cpp; sourceTree = "<group>"; };
+		7C37150222D6983600730913 /* Student.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Student.cpp; sourceTree = "<group>"; };
+		7C37150322D6983600730913 /* Student.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Student.hpp; sourceTree = "<group>"; };
 		7C39BE922295A385004D7974 /* club_sorting_program */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = club_sorting_program; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C39BE952295A385004D7974 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		7C52B5BA22D5248700A23BD1 /* DataReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataReader.h; sourceTree = "<group>"; };
+		7C52B5BB22D524DA00A23BD1 /* Club.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Club.h; sourceTree = "<group>"; };
 		7C9D162722C1591F0027250C /* DataReader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DataReader.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -64,6 +69,10 @@
 				7C39BE952295A385004D7974 /* main.cpp */,
 				7C9D162722C1591F0027250C /* DataReader.cpp */,
 				7C2B5F4F22C2858D00635686 /* Club.cpp */,
+				7C52B5BA22D5248700A23BD1 /* DataReader.h */,
+				7C52B5BB22D524DA00A23BD1 /* Club.h */,
+				7C37150222D6983600730913 /* Student.cpp */,
+				7C37150322D6983600730913 /* Student.hpp */,
 			);
 			path = club_sorting_program;
 			sourceTree = "<group>";
@@ -128,6 +137,7 @@
 				7C2B5F5022C2858D00635686 /* Club.cpp in Sources */,
 				7C9D162822C1591F0027250C /* DataReader.cpp in Sources */,
 				7C39BE962295A385004D7974 /* main.cpp in Sources */,
+				7C37150422D6983600730913 /* Student.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
