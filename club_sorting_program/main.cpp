@@ -18,9 +18,6 @@
 #include <lemon/list_graph.h>
 
 
-#include "DataReader.h"
-#include "Club.h"
-
 #define MAX_FILES 40
 #define CLUB_CAPACITY 20
 
@@ -29,13 +26,15 @@ using namespace std;
 
 string files[MAX_FILES];
 vector<vector<string>> data_table;
-vector<string> a_week_results, b_week_results;
+vector<string> a_week_results, b_week_results, a_week_clubs, b_week_clubs;
 string current_file_name;
 string current_path;
 int COL_STUDENT_NAME, COL_EMAIL, COL_GRADE, COL_CHOICE_START, NUM_CHOICES, COL_WEEK_A, COL_WEEK_B;
+int studyhall_a, studyhall_b;
 bool usingEmail;
 
 //Functions defined after main.
+void get_all_clubs();
 bool has_suffix(string str, string suffix);
 int list_dir(const char *path);
 void parseTSV(string filePath);
@@ -44,7 +43,7 @@ void process_b(vector<string> s);
 string remove_unnecessary_chars(string str);
 string to_uppercase(string str);
 void write_results_to_file(vector<string> s, string s2);
-void write_statistics_to_file(vector<string> s, string s2);
+void write_statistics_to_file(vector<string> s, string s2, string s3);
 
 int main(int argc, const char * argv[]) {
     //Display starting instructions
@@ -77,7 +76,7 @@ int main(int argc, const char * argv[]) {
     
     for (int fileNum = 0; fileNum < numFiles; fileNum++) {
         //For each file, if it's a csv then process.
-        if ((has_suffix(files[fileNum], ".tsv") || has_suffix(files[fileNum], ".TSV")) && files[fileNum].substr(0, 9).compare("_RESULTS_") != 0 && files[fileNum].substr(0, 12).compare("_STATISTICS_") != 0) {
+        if ((has_suffix(files[fileNum], ".tsv") || has_suffix(files[fileNum], ".TSV")) && files[fileNum].substr(0, 9).compare("_RESULTS_") != 0 && files[fileNum].substr(0, 10).compare("_RAWSTATS_") != 0 && files[fileNum].substr(0, 16).compare("_PROCESSEDSTATS_") != 0) {
             processed = true;
             current_file_name = files[fileNum];
             cout << "Processing " << files[fileNum] << "..." << endl << endl;
@@ -114,22 +113,22 @@ int main(int argc, const char * argv[]) {
                     //This is the grade column
                     COL_GRADE = col_num;
                 }
-                else if ((col.find("CHOICE") != -1 || col.find("CLUB") != -1) && COL_CHOICE_START == -1) {
+                else if ((col.find("CHOICE") != -1 && col.find("CLUB") != -1) && COL_CHOICE_START == -1) {
                     //This is the first club column
                     COL_CHOICE_START = col_num;
                     NUM_CHOICES = 1;
                 }
-                else if (col.find("A") != -1 && col.find("WEEK") != -1) {
-                    COL_WEEK_A = col_num;
-                }
-                else if (col.find("B") != -1 && col.find("WEEK") != -1) {
-                    COL_WEEK_B = col_num;
-                }
-                else if (col.find("CHOICE") != -1 || col.find("CLUB") != -1) {
+                else if (col.find("CHOICE") != -1 && col.find("CLUB") != -1) {
                     NUM_CHOICES++;
                 }
+                else if (col.find("A") != -1 && col.find("WEEK") != -1 && col.find("CHOICE") == -1) {
+                    COL_WEEK_A = col_num;
+                }
+                else if (col.find("B") != -1 && col.find("WEEK") != -1 && col.find("CHOICE") == -1) {
+                    COL_WEEK_B = col_num;
+                }
                 else {
-                    cout << "[WARNING] Found unknown column heading.\n" << endl;
+                    cout << "[WARNING] Found unknown column heading" << col << ".\n" << endl;
                 }
             }
             if (COL_STUDENT_NAME == -1 && COL_EMAIL == -1) {
@@ -160,10 +159,11 @@ int main(int argc, const char * argv[]) {
             
             
             srand(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
+            get_all_clubs();
             process_a(students);
             process_b(students);
             write_results_to_file(students, "_RESULTS_");
-            write_statistics_to_file(students, "_STATISTICS_");
+            write_statistics_to_file(students, "_RAWSTATS_", "_PROCESSEDSTATS_");
             
             cout << "Finished processing " << files[fileNum] << "." << endl << "--------------------" << endl << endl;
         }
@@ -187,7 +187,58 @@ int main(int argc, const char * argv[]) {
 /*                                                          */
 /************************************************************/
 
-
+void get_all_clubs() {
+    
+    //Grab all A clubs
+    for (int row = 1; row < data_table.size(); row++) {
+        
+        //Check to make sure data exists
+        if (data_table[row].size() <= COL_WEEK_A) break;
+        
+        string c_club = data_table[row][COL_WEEK_A];
+        if (c_club.length() <= 1) break;//Starting here the clubs are gone, possibly because there are more clubs in B week than A week.
+        
+        bool isInVector = false;
+        for (int i = 0; i < a_week_clubs.size(); i++) {
+            if (a_week_clubs[i].compare(c_club) == 0) {
+                isInVector = true;
+                break;
+            }
+        }
+        if (! isInVector) {
+            a_week_clubs.push_back(c_club);
+            if (to_uppercase(c_club).compare("STUDY HALL") == 0 || to_uppercase(c_club).compare("STUDYHALL") == 0) {
+                studyhall_a = row - 1;
+            }
+        }
+    }
+    
+    
+    
+    //Grab all B clubs
+    for (int row = 1; row < data_table.size(); row++) {
+        
+        //Check to make sure data exists
+        if (data_table[row].size() <= COL_WEEK_B) break;
+        
+        string c_club = data_table[row][COL_WEEK_B];
+        if (c_club.length() <= 1) break;//Starting here the clubs are gone, possibly because there are more clubs in B week than A week.
+        
+        bool isInVector = false;
+        for (int i = 0; i < b_week_clubs.size(); i++) {
+            if (b_week_clubs[i].compare(c_club) == 0) {
+                isInVector = true;
+                break;
+            }
+        }
+        if (! isInVector) {
+            b_week_clubs.push_back(c_club);
+            if (to_uppercase(c_club).compare("STUDY HALL") == 0 || to_uppercase(c_club).compare("STUDYHALL") == 0) {
+                studyhall_b = row - 1;
+            }
+        }
+    }
+}
 
 bool has_suffix(string str, string suffix)
 {
@@ -230,36 +281,11 @@ void parseTSV(string filePath)
     }
 }
 
+
 void process_a(vector<string> students) {
     cout << "Processing A week choice data..." << endl;
     
-    //Grab all clubs
-    vector<string> clubs;
-    int studyHall = -1;
-    for (int row = 1; row < data_table.size(); row++) {
-        
-        //Check to make sure data exists
-        if (data_table[row].size() <= COL_WEEK_A) break;
-        
-        string c_club = data_table[row][COL_WEEK_A];
-        if (c_club.length() <= 1) break;//Starting here the clubs are gone, possibly because there are more clubs in B week than A week.
-        
-        bool isInVector = false;
-        for (int i = 0; i < clubs.size(); i++) {
-            if (clubs[i].compare(c_club) == 0) {
-                isInVector = true;
-                break;
-            }
-        }
-        if (! isInVector) {
-            clubs.push_back(c_club);
-            if (to_uppercase(c_club).compare("STUDY HALL") == 0 || to_uppercase(c_club).compare("STUDYHALL") == 0) {
-                studyHall = row - 1;
-            }
-        }
-    }
     
-    //cout << "I hate seg faults1." << endl;
     ListDigraph flowGraph;
     
     ListDigraph::Node start = flowGraph.addNode(), end = flowGraph.addNode();
@@ -269,23 +295,18 @@ void process_a(vector<string> students) {
     vector<vector<ListDigraph::Arc>> connection_arcs;
     vector<vector<int>> connection_arcs_d;
     
-    //cout << "I hate seg faults2." << endl;
     //Add student nodes and arcs
     for (int i = 0; i < students.size(); i++) {
         student_nodes.push_back(flowGraph.addNode());
         student_arcs.push_back(flowGraph.addArc(start, student_nodes.back()));
-        //cout << "Adding arc from start to " << students[i] << endl;
     }
     
-    //cout << "I hate seg faults3." << endl;
     //Add club nodes and arcs
-    for (int i = 0; i < clubs.size(); i++) {
+    for (int i = 0; i < a_week_clubs.size(); i++) {
         club_nodes.push_back(flowGraph.addNode());
         club_arcs.push_back(flowGraph.addArc(club_nodes.back(), end));
-        //cout << "Adding arc from " << clubs[i] << " to end" << endl;
     }
     
-    //cout << "I hate seg faults4." << endl;
     //Add connection arcs
     for (int s = 0; s < students.size(); s++) {
         vector<int> h1;
@@ -293,38 +314,44 @@ void process_a(vector<string> students) {
         connection_arcs_d.push_back(h1);
         connection_arcs.push_back(h2);
         string name = students[s];
-        //ic
         vector<string> choices;
-        //cout << "P: " << name << endl;
+        
+        //first, for optimization, if the first is AB week and 2nd is A week then swap the two
+        bool contains1 = false, contains2 = false;
+        for (int c = 0; c < b_week_clubs.size(); c++) {
+            if (data_table[s + 1][COL_CHOICE_START].compare(b_week_clubs[c]) == 0) contains1 = true;
+            if (data_table[s + 1][COL_CHOICE_START + 1].compare(b_week_clubs[c]) == 0) contains2 = true;
+        }
+        if (contains1 && (! contains2)) {
+            string temp = data_table[s + 1][COL_CHOICE_START];
+            data_table[s + 1][COL_CHOICE_START]  = data_table[s + 1][COL_CHOICE_START + 1];
+            data_table[s + 1][COL_CHOICE_START + 1] = temp;
+        }
+        
         //add in connection arcs
         for (int i = 0; i < NUM_CHOICES; i++) {
             bool c_ex = false;
-            for (int c = 0; c < clubs.size(); c++) {
-                //cout << i + COL_CHOICE_START << " " << row << " ";
-                //cout << "Club:" << data_table[row][i + COL_CHOICE_START] << endl;
-                if (data_table[s + 1][i + COL_CHOICE_START].compare(clubs[c]) == 0) {
+            for (int c = 0; c < a_week_clubs.size(); c++) {
+                if (data_table[s + 1][i + COL_CHOICE_START].compare(a_week_clubs[c]) == 0) {
                     bool exists = false;
                     
                     c_ex = true;
                     for (int j = 0; j < choices.size(); j++) {
-                        if (choices[j].compare(clubs[c]) == 0) exists = true;
+                        if (choices[j].compare(a_week_clubs[c]) == 0) exists = true;
                     }
-                    //cout << "E: " << exists << endl;
                     if (! exists) {
-                        if (! (to_uppercase(clubs[c]).compare("STUDY HALL") == 0 || to_uppercase(clubs[c]).compare("STUDYHALL") == 0)) {
+                        if (! (to_uppercase(a_week_clubs[c]).compare("STUDY HALL") == 0 || to_uppercase(a_week_clubs[c]).compare("STUDYHALL") == 0)) {
                             connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[c]));
                             connection_arcs_d[s].push_back(c);
-                            choices.push_back(clubs[c]);
+                            choices.push_back(a_week_clubs[c]);
                         }
                         break;
-                        //cout << "Adding arc from " << students[s] << " to " << clubs[c] << endl;
                     }
                 }
             }
         }
-        
-        connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[studyHall]));
-        connection_arcs_d[s].push_back(studyHall);
+        connection_arcs_d[s].push_back(studyhall_a);
+        connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[studyhall_a]));
     }
     //Add upper and cost maps
     ListDigraph::ArcMap<int> upper_map(flowGraph);
@@ -343,20 +370,20 @@ void process_a(vector<string> students) {
         
         //find connection arcs
         for (int i = 0; i < NUM_CHOICES; i++) {
-            for (int c = 0; c < clubs.size(); c++) {
-                if (data_table[s + 1][i + COL_CHOICE_START].compare(clubs[c]) == 0) {
+            for (int c = 0; c < a_week_clubs.size(); c++) {
+                if (data_table[s + 1][i + COL_CHOICE_START].compare(a_week_clubs[c]) == 0) {
                     bool exists = false;
                     for (int j = 0; j < choices.size(); j++) {
                         if (choices[j] == c) exists = true;
                     }
                     if (! exists) {
                         choices.push_back(c);
-                        if (to_uppercase(clubs[c]).compare("STUDY HALL") == 0 || to_uppercase(clubs[c]).compare("STUDYHALL") == 0) choices_has_sh = true;
+                        if (to_uppercase(a_week_clubs[c]).compare("STUDY HALL") == 0 || to_uppercase(a_week_clubs[c]).compare("STUDYHALL") == 0) choices_has_sh = true;
                     }
                 }
             }
         }
-        if (! choices_has_sh) choices.push_back(studyHall);
+        if (! choices_has_sh) choices.push_back(studyhall_a);
         
         
         //find cost of connection arcs
@@ -405,10 +432,10 @@ void process_a(vector<string> students) {
         }
     }
     
-    for (int i = 0; i < clubs.size(); i++) {
+    for (int i = 0; i < a_week_clubs.size(); i++) {
         //Default club size is 20 unless Allison emails a second time saying that she changed her mind
         //No max student count for study hall.
-        if (to_uppercase(clubs[i]).compare("STUDY HALL") == 0 || to_uppercase(clubs[i]).compare("STUDYHALL") == 0) upper_map[club_arcs[i]] = students.size() * 10;
+        if (to_uppercase(a_week_clubs[i]).compare("STUDY HALL") == 0 || to_uppercase(a_week_clubs[i]).compare("STUDYHALL") == 0) upper_map[club_arcs[i]] = students.size() * 10;
         else upper_map[club_arcs[i]] = CLUB_CAPACITY;
         cost_map[club_arcs[i]] = 0;
     }
@@ -428,7 +455,7 @@ void process_a(vector<string> students) {
         for (int c = 0; c < connection_arcs[i].size(); c++) {
             int f = flow.flow(connection_arcs[i][c]);
             if (f == 1) {
-                a_week_results.push_back(clubs[connection_arcs_d[i][c]]);
+                a_week_results.push_back(a_week_clubs[connection_arcs_d[i][c]]);
                 break;
             }
         }
@@ -442,33 +469,6 @@ void process_a(vector<string> students) {
 void process_b(vector<string> students) {
     cout << "Processing B week choice data..." << endl;
     
-    //Grab all clubs
-    vector<string> clubs;
-    int studyHall = -1;
-    for (int row = 1; row < data_table.size(); row++) {
-        
-        //Check to make sure data exists
-        if (data_table[row].size() <= COL_WEEK_B) break;
-        
-        string c_club = data_table[row][COL_WEEK_B];
-        if (c_club.length() <= 1) break;//Starting here the clubs are gone, possibly because there are more clubs in B week than A week.
-        
-        bool isInVector = false;
-        for (int i = 0; i < clubs.size(); i++) {
-            if (clubs[i].compare(c_club) == 0) {
-                isInVector = true;
-                break;
-            }
-        }
-        if (! isInVector) {
-            clubs.push_back(c_club);
-            if (to_uppercase(c_club).compare("STUDY HALL") == 0 || to_uppercase(c_club).compare("STUDYHALL") == 0) {
-                studyHall = row - 1;
-            }
-        }
-    }
-    
-    //cout << "I hate seg faults1." << endl;
     ListDigraph flowGraph;
     
     ListDigraph::Node start = flowGraph.addNode(), end = flowGraph.addNode();
@@ -484,7 +484,7 @@ void process_b(vector<string> students) {
     }
     
     //Add club nodes and arcs
-    for (int i = 0; i < clubs.size(); i++) {
+    for (int i = 0; i < b_week_clubs.size(); i++) {
         club_nodes.push_back(flowGraph.addNode());
         club_arcs.push_back(flowGraph.addArc(club_nodes.back(), end));
     }
@@ -501,20 +501,20 @@ void process_b(vector<string> students) {
         //add in connection arcs
         for (int i = 0; i < NUM_CHOICES; i++) {
             bool c_ex = false;
-            for (int c = 0; c < clubs.size(); c++) {
-                if (data_table[s + 1][i + COL_CHOICE_START].compare(clubs[c]) == 0) {
+            for (int c = 0; c < b_week_clubs.size(); c++) {
+                if (data_table[s + 1][i + COL_CHOICE_START].compare(b_week_clubs[c]) == 0) {
                     bool exists = false;
                     
                     c_ex = true;
                     for (int j = 0; j < choices.size(); j++) {
-                        if (choices[j].compare(clubs[c]) == 0) exists = true;
+                        if (choices[j].compare(b_week_clubs[c]) == 0) exists = true;
                     }
                     if (! exists) {
-                        if (! (to_uppercase(clubs[c]).compare("STUDY HALL") == 0 || to_uppercase(clubs[c]).compare("STUDYHALL") == 0)) {
-                            if (to_uppercase(clubs[c]).compare(to_uppercase(a_week_results[s])) != 0) {
+                        if (! (to_uppercase(b_week_clubs[c]).compare("STUDY HALL") == 0 || to_uppercase(b_week_clubs[c]).compare("STUDYHALL") == 0)) {
+                            if (to_uppercase(b_week_clubs[c]).compare(to_uppercase(a_week_results[s])) != 0) {
                                 connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[c]));
                                 connection_arcs_d[s].push_back(c);
-                                choices.push_back(clubs[c]);
+                                choices.push_back(b_week_clubs[c]);
                             }
                         }
                         break;
@@ -523,8 +523,8 @@ void process_b(vector<string> students) {
             }
         }
         
-        connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[studyHall]));
-        connection_arcs_d[s].push_back(studyHall);
+        connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[studyhall_b]));
+        connection_arcs_d[s].push_back(studyhall_b);
     }
     //Add upper and cost maps
     ListDigraph::ArcMap<int> upper_map(flowGraph);
@@ -543,22 +543,22 @@ void process_b(vector<string> students) {
         
         //find connection arcs
         for (int i = 0; i < NUM_CHOICES; i++) {
-            for (int c = 0; c < clubs.size(); c++) {
-                if (data_table[s + 1][i + COL_CHOICE_START].compare(clubs[c]) == 0) {
+            for (int c = 0; c < b_week_clubs.size(); c++) {
+                if (data_table[s + 1][i + COL_CHOICE_START].compare(b_week_clubs[c]) == 0) {
                     bool exists = false;
                     for (int j = 0; j < choices.size(); j++) {
                         if (choices[j] == c) exists = true;
                     }
                     if (! exists) {
-                        if (to_uppercase(clubs[c]).compare(to_uppercase(a_week_results[s])) != 0) {
+                        if (to_uppercase(b_week_clubs[c]).compare(to_uppercase(a_week_results[s])) != 0) {
                             choices.push_back(c);
-                            if (to_uppercase(clubs[c]).compare("STUDY HALL") == 0 || to_uppercase(clubs[c]).compare("STUDYHALL") == 0) choices_has_sh = true;
+                            if (to_uppercase(b_week_clubs[c]).compare("STUDY HALL") == 0 || to_uppercase(b_week_clubs[c]).compare("STUDYHALL") == 0) choices_has_sh = true;
                         }
                     }
                 }
             }
         }
-        if (! choices_has_sh) choices.push_back(studyHall);
+        if (! choices_has_sh) choices.push_back(studyhall_b);
         
         
         //find cost of connection arcs
@@ -606,10 +606,10 @@ void process_b(vector<string> students) {
         }
     }
     
-    for (int i = 0; i < clubs.size(); i++) {
+    for (int i = 0; i < b_week_clubs.size(); i++) {
         //Default club size is 20 unless Allison emails a second time saying that she changed her mind
         //No max student count for study hall.
-        if (to_uppercase(clubs[i]).compare("STUDY HALL") == 0 || to_uppercase(clubs[i]).compare("STUDYHALL") == 0) upper_map[club_arcs[i]] = students.size() * 10;
+        if (to_uppercase(b_week_clubs[i]).compare("STUDY HALL") == 0 || to_uppercase(b_week_clubs[i]).compare("STUDYHALL") == 0) upper_map[club_arcs[i]] = students.size() * 10;
         else upper_map[club_arcs[i]] = CLUB_CAPACITY;
         cost_map[club_arcs[i]] = 0;
     }
@@ -635,7 +635,7 @@ void process_b(vector<string> students) {
         for (int c = 0; c < connection_arcs[i].size(); c++) {
             int f = flow.flow(connection_arcs[i][c]);
             if (f == 1) {
-                b_week_results.push_back(clubs[connection_arcs_d[i][c]]);
+                b_week_results.push_back(b_week_clubs[connection_arcs_d[i][c]]);
                 totals[c]++;
                 break;
             }
@@ -707,16 +707,20 @@ void write_results_to_file(vector<string> students, string filePrefix) {
     cout << "Finished writing results to file.\n\n\n" << endl;
 }
 
-void write_statistics_to_file(vector<string> students, string filePrefix) {
+void write_statistics_to_file(vector<string> students, string filePrefix, string filePrefix2) {
     
-    cout << "Writing statistics to file " << filePrefix << current_file_name << "..." << endl;
+    cout << "Writing statistics to file " << filePrefix << current_file_name << " and " << filePrefix2 << current_file_name << "..." << endl;
     
-    vector<int> total_count_a, total_count_b;
+    vector<int> total_count_a, total_count_b, mod_count_a, mod_count_b;
     
     for (int i = 0; i < NUM_CHOICES; i++) {
         total_count_a.push_back(0);
         total_count_b.push_back(0);
+        mod_count_a.push_back(0);
+        mod_count_b.push_back(0);
     }
+    
+    //find total counts
     
     for (int i = 0; i < students.size(); i++) {
         int offset = 0;
@@ -739,7 +743,6 @@ void write_statistics_to_file(vector<string> students, string filePrefix) {
             if (ch.compare(to_uppercase(a_week_results[i])) == 0) {
                 total_count_a[c - offset]++;
                 choices.push_back(ch);
-                if (c - offset == 5) cout << "A: " << students[i] << endl;
                 break;
             }
         }
@@ -763,8 +766,74 @@ void write_statistics_to_file(vector<string> students, string filePrefix) {
             if (ch.compare(to_uppercase(b_week_results[i])) == 0) {
                 total_count_b[c - offset]++;
                 choices.push_back(ch);
-                if (c - offset == 5) cout << "B: " << students[i] << endl;
                 break;
+            }
+        }
+    }
+    
+    //find modified counts (without other week)
+    for (int i = 0; i < students.size(); i++) {
+        int offset = 0;
+        vector<string> choices;
+        for (int c = 0; c < NUM_CHOICES; c++) {
+            string ch = to_uppercase(data_table[i + 1][COL_CHOICE_START + c]);
+            bool exists = false;
+            for (int c1 = 0; c1 < choices.size(); c1++) {
+                if (choices[c1].compare(ch) == 0) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (exists) {
+                offset++;
+                continue;
+            }
+            
+            
+            if (ch.compare(to_uppercase(a_week_results[i])) == 0) {
+                mod_count_a[c - offset]++;
+                choices.push_back(ch);
+                break;
+            }
+            
+            
+            //if it's not an a week club, and it's b week, offset.
+            for (int b = 0; b < b_week_clubs.size(); b++) {
+                if (ch.compare(to_uppercase(b_week_clubs[b])) == 0) {
+                    offset++;
+                    break;
+                }
+            }
+        }
+        
+        offset = 0;
+        choices.clear();
+        for (int c = 0; c < NUM_CHOICES; c++) {
+            string ch = to_uppercase(data_table[i + 1][COL_CHOICE_START + c]);
+            bool exists = false;
+            for (int c1 = 0; c1 < choices.size(); c1++) {
+                if (choices[c1].compare(ch) == 0) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (exists) {
+                offset++;
+                continue;
+            }
+            
+            
+            if (ch.compare(to_uppercase(b_week_results[i])) == 0) {
+                mod_count_b[c - offset]++;
+                choices.push_back(ch);
+                break;
+            }
+            
+            for (int b = 0; b < a_week_clubs.size(); b++) {
+                if (ch.compare(to_uppercase(a_week_clubs[b])) == 0) {
+                    offset++;
+                    break;
+                }
             }
         }
     }
@@ -772,9 +841,16 @@ void write_statistics_to_file(vector<string> students, string filePrefix) {
     //output results to .tsv file
     ofstream f_out;
     f_out.open(current_path + "/" + filePrefix + current_file_name);
-    f_out << "Choice #\tA Week Students\tB Week Students";
+    f_out << "Raw Data\nChoice #\tA Week Students\tB Week Students";
     for (int i = 0; i < NUM_CHOICES; i++) {
         f_out << "\n" << i + 1 << "\t" << total_count_a[i] << "\t" << total_count_b[i];
+    }
+    f_out.close();
+    
+    f_out.open(current_path + "/" + filePrefix2 + current_file_name);
+    f_out << "Processed Data\nChoice #\tA Week Students\tB Week Students";
+    for (int i = 0; i < NUM_CHOICES; i++) {
+        f_out << "\n" << i + 1 << "\t" << mod_count_a[i] << "\t" << mod_count_b[i];
     }
     f_out.close();
     cout << "Finished writing statistics to file.\n\n\n" << endl;
