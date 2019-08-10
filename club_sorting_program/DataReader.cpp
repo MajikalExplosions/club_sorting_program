@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include "DataReader.h"
+#include "Student.h"
 #include "Club.h"
 
 using namespace std;

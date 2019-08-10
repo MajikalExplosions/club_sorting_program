@@ -5,12 +5,15 @@
 
 #include <string>
 #include <vector>
+#include "Student.h"
 
 using namespace std;
+
 
 class Club {
     string m_club_name;
     int m_week;
+    vector<Student *> members;
 public:
     Club(string, string);
     
@@ -19,6 +22,8 @@ public:
     bool isAB();
     bool inA();
     bool inB();
+    void addMember(string);
+    vector<Student *> getMembers();
 };
 
 #endif
