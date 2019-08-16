@@ -11,20 +11,24 @@ using namespace std;
 class Club;
 
 class Student {
-    string m_student_name;
-    vector<Club *> choices;
-    Club * a;
-    Club * b;
+    string m_name;
+    int m_grade;
+    vector<int> m_choicesA, m_choicesB;
+    int m_finalA, m_finalB;
 public:
     Student(string);
     
-    void addChoice(Club);
-    void setAWeek(Club);
-    void setBWeek(Club);
-    Club getAWeek();
-    Club getBWeek();
+    void addChoiceA(int);
+    void addChoiceB(int);
+    void setAWeek(int);
+    void setBWeek(int);
+    void setGrade(int);
+    int getAWeek();
+    int getBWeek();
+    int getGrade();
     string getName();
-    vector<Club> getChoices();
+    vector<int> getChoicesA();//Perhaps change this to "int getChoice(int);" ?
+    vector<int> getChoicesB();//Perhaps change this to "int getChoice(int);" ?
 };
 
 #endif

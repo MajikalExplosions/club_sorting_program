@@ -6,29 +6,46 @@
 
 using namespace std;
 
-Club::Club(string name, string w) {
+Club::Club(string name) {
     m_club_name = name;
-    if (w.compare("A") == 0) m_week = 2;
-    if (w.compare("B") == 0) m_week = 3;
-    if (w.compare("AB") == 0) m_week = 6;
+}
+
+void Club::setA(bool b) {
+    m_a = b;
+}
+
+void Club::setB(bool b) {
+    m_b = b;
+}
+
+string Club::getName() {
+    return m_club_name;
 }
 
 bool Club::isA() {
-    return m_week == 2;
+    return m_a && ! m_b;
 }
 
 bool Club::isB() {
-    return m_week == 3;
+    return m_b && ! m_a;
 }
 
 bool Club::isAB() {
-    return m_week == 6;
+    return m_a && m_b;
 }
 
 bool Club::inA() {
-    return m_week % 2 == 0;
+    return m_a;
 }
 
 bool Club::inB() {
-    return m_week % 3 == 0;
+    return m_b;
+}
+
+void Club::addMember(int s) {
+    m_members.push_back(s);
+}
+
+vector<int> Club::getMembers() {
+    return m_members;
 }

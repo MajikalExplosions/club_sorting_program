@@ -11,6 +11,7 @@
 		7C37150422D6983600730913 /* Student.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7C37150222D6983600730913 /* Student.cpp */; };
 		7C39BE962295A385004D7974 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7C39BE952295A385004D7974 /* main.cpp */; };
 		7C9D162822C1591F0027250C /* DataReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7C9D162722C1591F0027250C /* DataReader.cpp */; };
+		7C9D6F1023021ADD0010D145 /* new_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7C9D6F0F23021ADD0010D145 /* new_main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,6 +34,7 @@
 		7C52B5BA22D5248700A23BD1 /* DataReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataReader.h; sourceTree = "<group>"; };
 		7C52B5BB22D524DA00A23BD1 /* Club.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Club.h; sourceTree = "<group>"; };
 		7C9D162722C1591F0027250C /* DataReader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DataReader.cpp; sourceTree = "<group>"; };
+		7C9D6F0F23021ADD0010D145 /* new_main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = new_main.cpp; sourceTree = "<group>"; };
 		7CFB8DE022F77DCE0029A01B /* Student.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Student.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -66,13 +68,14 @@
 		7C39BE942295A385004D7974 /* club_sorting_program */ = {
 			isa = PBXGroup;
 			children = (
-				7CFB8DE022F77DCE0029A01B /* Student.h */,
 				7C39BE952295A385004D7974 /* main.cpp */,
-				7C9D162722C1591F0027250C /* DataReader.cpp */,
-				7C2B5F4F22C2858D00635686 /* Club.cpp */,
 				7C52B5BA22D5248700A23BD1 /* DataReader.h */,
+				7C9D162722C1591F0027250C /* DataReader.cpp */,
 				7C52B5BB22D524DA00A23BD1 /* Club.h */,
+				7C2B5F4F22C2858D00635686 /* Club.cpp */,
+				7CFB8DE022F77DCE0029A01B /* Student.h */,
 				7C37150222D6983600730913 /* Student.cpp */,
+				7C9D6F0F23021ADD0010D145 /* new_main.cpp */,
 			);
 			path = club_sorting_program;
 			sourceTree = "<group>";
@@ -134,6 +137,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7C9D6F1023021ADD0010D145 /* new_main.cpp in Sources */,
 				7C2B5F5022C2858D00635686 /* Club.cpp in Sources */,
 				7C9D162822C1591F0027250C /* DataReader.cpp in Sources */,
 				7C39BE962295A385004D7974 /* main.cpp in Sources */,
