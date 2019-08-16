@@ -39,22 +39,25 @@ int main() {
     cout << "Enter the data file path and press Enter to continue." << endl;
     string fp;
     getline(cin, fp);
+    if (fp.at(fp.size() - 1) == ' ') fp = fp.substr(0, fp.size() - 1);
     cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-    
-    if (! ((has_suffix(fp, ".tsv") || has_suffix(fp, ".TSV")))) {show_error(string("File is not a .TSV"), 10);}
-    
+    if (! ((has_suffix(fp, ".tsv") || has_suffix(fp, ".TSV")))) show_error(string("File is not a .TSV"), 10);
+    fp.erase(std::remove(fp.begin(), fp.end(), '\\'), fp.end());
     df = DataFile(fp);
     df.readFile();
     srand(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-    
     process_a();
     process_b();
+    df.outputResults();
     return 0;
 }
 
-bool has_suffix(string str, string suffix)
-{
-    return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+bool has_suffix(string fullString, string ending) {
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
 }
 
 void show_error(string desc, int code) {
@@ -98,7 +101,6 @@ void process_a() {
     vector<ListDigraph::Arc> student_arcs, club_arcs;
     vector<vector<ListDigraph::Arc>> connection_arcs;
     vector<vector<int>> connection_ids;
-    
     //Add student nodes and arcs
     for (int i = 0; i < df.getStudents().size(); i++) {
         student_nodes.push_back(flowGraph.addNode());
@@ -110,7 +112,6 @@ void process_a() {
         club_nodes.push_back(flowGraph.addNode());
         club_arcs.push_back(flowGraph.addArc(club_nodes.back(), end));
     }
-    
     //Add connection arcs
     for (int s = 0; s < df.getStudents().size(); s++) {
         vector<int> h1;
@@ -118,7 +119,6 @@ void process_a() {
         connection_ids.push_back(h1);
         connection_arcs.push_back(h2);
         vector<int> choices;
-        
         //first, for optimization, if the first is AB week and 2nd is A week then swap the two
         if (df.getClubs()[df.getStudents()[s].getChoicesA()[0]].isAB() && df.getClubs()[df.getStudents()[s].getChoicesA()[1]].isA()) {
             int t = df.getStudents()[s].getChoicesA()[0];
@@ -143,6 +143,7 @@ void process_a() {
         connection_ids[s].push_back(df.getStudyHall());
         connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[df.getStudyHall()]));
     }
+    
     //Add upper and cost maps
     ListDigraph::ArcMap<int> upper_map(flowGraph);
     ListDigraph::ArcMap<double> cost_map(flowGraph);
@@ -154,12 +155,11 @@ void process_a() {
     
     for (int s = 0; s < df.getStudents().size(); s++) {
         
-        
         //find cost of connection arcs
         
         double cost = 0.0001;
         
-        for (int c = 0; c < df.getStudents()[s].getChoicesA().size(); c++) {
+        for (int c = 0; c < connection_arcs[s].size(); c++) {
             double rnd = ((double) rand() / (RAND_MAX));
             double offset = 0;
             
@@ -180,12 +180,17 @@ void process_a() {
                 offset = 0.025;
             }
             else rnd *= 10;
+            
             ListDigraph::Arc arc1 = connection_arcs[s][c];
             upper_map[arc1] = 1;
             cost_map[arc1] = cost * (rnd + 1 + offset);
             cost *= 100;
+            
         }
     }
+    
+    
+    
     for (int i = 0; i < df.getClubs().size(); i++) {
         upper_map[club_arcs[i]] = CLUB_CAPACITY;
         cost_map[club_arcs[i]] = 0;
@@ -279,7 +284,7 @@ void process_b() {
         
         double cost = 0.0001;
         
-        for (int c = 0; c < df.getStudents()[s].getChoicesB().size(); c++) {
+        for (int c = 0; c < connection_arcs[s].size(); c++) {
             double rnd = ((double) rand() / (RAND_MAX));
             double offset = 0;
             
@@ -310,7 +315,6 @@ void process_b() {
         upper_map[club_arcs[i]] = CLUB_CAPACITY;
         cost_map[club_arcs[i]] = 0;
     }
-    
     upper_map[club_arcs[df.getStudyHall()]] = CLUB_CAPACITY;
     cost_map[club_arcs[df.getStudyHall()]] = 0;
     

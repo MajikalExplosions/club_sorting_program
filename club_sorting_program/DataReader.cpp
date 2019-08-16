@@ -27,7 +27,6 @@ DataFile::DataFile (string filePath) {
 void DataFile::readFile() {
     ifstream data(m_file_path);
     vector<vector<string>> data_table;
-    
     //read .TSV file
     string line;
     while(getline(data,line))
@@ -53,7 +52,7 @@ void DataFile::readFile() {
     int COL_CHOICE_START_B = -1;
     int NUM_CHOICES_B = -1;
     
-    for (int col_num = 0; col_num < data_table.at(0).size(); col_num++) {
+    for (int col_num = 0; col_num < data_table[0].size(); col_num++) {
         string col = to_uppercase(data_table[0][col_num]);
         
         col.erase(remove(col.begin(), col.end(), '"'), col.end());
@@ -82,7 +81,6 @@ void DataFile::readFile() {
             NUM_CHOICES_B++;
         }
     }
-    
     //Create Student and Club objects
     for (int row = 1; row < data_table.size(); row++) {
         if (data_table[row][COL_NAME].compare("") == 0) break;
@@ -115,7 +113,7 @@ void DataFile::readFile() {
             if (! in) {
                 cl = Club(data_table[row][c]);
                 m_clubs.push_back(cl);
-                if (cl.getName().find("STUDY") == 0 && cl.getName().find("HALL") == 0 && m_sh == -1) m_sh = m_clubs.size() - 1;
+                if (cl.getName().find("STUDY") != -1 && cl.getName().find("HALL") != -1 && m_sh == -1) m_sh = m_clubs.size() - 1;
                 m_students[m_students.size() - 1].addChoiceA(m_clubs.size() - 1);
             }
             cl.setA(true);
@@ -134,12 +132,23 @@ void DataFile::readFile() {
             if (! in) {
                 cl = Club(data_table[row][c]);
                 m_clubs.push_back(cl);
-                if (to_uppercase(cl.getName()).find("STUDY") == 0 && to_uppercase(cl.getName()).find("HALL") == 0 && m_sh == -1) m_sh = m_clubs.size() - 1;
+                if (to_uppercase(cl.getName()).find("STUDY") != -1 && to_uppercase(cl.getName()).find("HALL") != -1 && m_sh == -1) {
+                    m_sh = m_clubs.size() - 1;
+                }
                 m_students[m_students.size() - 1].addChoiceB(m_clubs.size() - 1);
             }
             cl.setB(true);
         }
     }
+    
+    //add study hall if it doesn't exist
+    
+    if (m_sh == -1) {
+        m_sh = m_clubs.size();
+        m_clubs.push_back(Club("STUDY HALL"));
+    }
+    
+    //for (int i = 0; i < m_clubs.size(); i++) cout << m_clubs[i].getName() << endl;
 }
 
 vector<Club> DataFile::getClubs() {
@@ -171,7 +180,10 @@ string DataFile::remove_unnecessary_chars(string str) {
         temp[i] = char_array[i];
     }
     temp[added] = 0;
-    return string(temp);
+    string n = string(temp);
+    if (n.at(0) == ' ') n = n.substr(1);
+    if (n.at(n.size() - 1) == ' ') n = n.substr(0, n.size() - 1);
+    return n;
 }
 
 string DataFile::to_uppercase(string str) {
@@ -208,6 +220,7 @@ void DataFile::outputResults() {
     f_out.open(m_file_path + "_results.tsv");
     f_out << "Name\tA Week\tB Week";
     for (int i = 0; i < m_students.size(); i++) {
+        cout << m_students[i].getName() << " " << m_students[i].getAWeek() << endl;
         f_out << "\n" << m_students[i].getName() << "\t" << m_clubs[m_students[i].getAWeek()].getName() << "\t" << m_clubs[m_students[i].getBWeek()].getName();
     }
     f_out.close();

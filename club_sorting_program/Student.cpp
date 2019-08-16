@@ -1,12 +1,17 @@
 //  Copyright © 2019 MajikalExplosions. All rights reserved.
 
 #include "Student.h"
+#include <iostream>
+
 
 
 
 
 Student::Student(string name) {
     m_name = name;
+    m_grade = -1;
+    m_finalA = -1;
+    m_finalB = -1;
 }
 
 int Student::getGrade() {
@@ -27,10 +32,12 @@ void Student::addChoiceB(int c) {
 
 void Student::setAWeek(int a) {
     m_finalA = a;
+    std::cout << "Set " << m_name << " club A to " << m_finalA << endl;
 }
 
 void Student::setBWeek(int b) {
     m_finalA = b;
+    std::cout << "Set " << m_name << " club B to " << m_finalB << " cA " << m_finalA << endl;
 }
 
 int Student::getAWeek() {
