@@ -18,8 +18,6 @@
 #include <lemon/network_simplex.h>
 #include <lemon/list_graph.h>
 
-
-#define MAX_FILES 40
 #define CLUB_CAPACITY 20
 
 using namespace lemon;
@@ -35,12 +33,12 @@ DataFile df("");
 int main() {
     //Display starting instructions
     cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-    cout << "CSUS Club Sorting Program by MajikalExplosions\n\nInstructions are in the Google Doc located at https://docs.google.com/document/d/1dU4ZycZOI1EdE42cmntatw8ZZDbrYttpQWUMLISw1rY/edit?usp=sharing" << endl;
+    cout << "CSUS Club Sorting Program v1.1.0 by MajikalExplosions\n\nInstructions are in Google Drive at https://drive.google.com/drive/folders/1HdzcqUyV1fmEUPqvuYxvMsm8z0VeFbsf" << endl << endl;
     cout << "Enter the data file path and press Enter to continue." << endl;
     string fp;
     getline(cin, fp);
+    cout << endl;
     if (fp.at(fp.size() - 1) == ' ') fp = fp.substr(0, fp.size() - 1);
-    cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
     if (! ((has_suffix(fp, ".tsv") || has_suffix(fp, ".TSV")))) show_error(string("File is not a .TSV"), 10);
     fp.erase(std::remove(fp.begin(), fp.end(), '\\'), fp.end());
     df = DataFile(fp);
@@ -49,6 +47,7 @@ int main() {
     process_a();
     process_b();
     df.outputResults();
+    cout << "\n\n\nFinished sorting students into clubs. You may now close this window.\n\n";
     return 0;
 }
 
@@ -102,58 +101,62 @@ void process_a() {
     vector<vector<ListDigraph::Arc>> connection_arcs;
     vector<vector<int>> connection_ids;
     //Add student nodes and arcs
-    for (int i = 0; i < df.getStudents().size(); i++) {
+    for (int i = 0; i < df.m_students.size(); i++) {
         student_nodes.push_back(flowGraph.addNode());
         student_arcs.push_back(flowGraph.addArc(start, student_nodes.back()));
     }
     
     //Add club nodes and arcs
-    for (int i = 0; i < df.getClubs().size(); i++) {
+    for (int i = 0; i < df.m_clubs.size(); i++) {
         club_nodes.push_back(flowGraph.addNode());
         club_arcs.push_back(flowGraph.addArc(club_nodes.back(), end));
     }
+    
     //Add connection arcs
-    for (int s = 0; s < df.getStudents().size(); s++) {
+    int total = 0;
+    for (int s = 0; s < df.m_students.size(); s++) {
         vector<int> h1;
         vector<ListDigraph::Arc> h2;
         connection_ids.push_back(h1);
         connection_arcs.push_back(h2);
         vector<int> choices;
         //first, for optimization, if the first is AB week and 2nd is A week then swap the two
-        if (df.getClubs()[df.getStudents()[s].getChoicesA()[0]].isAB() && df.getClubs()[df.getStudents()[s].getChoicesA()[1]].isA()) {
-            int t = df.getStudents()[s].getChoicesA()[0];
-            df.getStudents()[s].getChoicesA()[0] = df.getStudents()[s].getChoicesA()[1];
-            df.getStudents()[s].getChoicesA()[1] = t;
+        if (df.m_clubs[df.m_students[s].getChoicesA()[0]].isAB() && df.m_clubs[df.m_students[s].getChoicesA()[1]].isA()) {
+            int t = df.m_students[s].getChoicesA()[0];
+            df.m_students[s].getChoicesA()[0] = df.m_students[s].getChoicesA()[1];
+            df.m_students[s].getChoicesA()[1] = t;
         }
         
         //add in connection arcs
-        for (int i = 0; i < df.getStudents()[s].getChoicesA().size(); i++) {
+        for (int i = 0; i < df.m_students[s].getChoicesA().size(); i++) {
             bool isAdded = false;
             for (int c = 0; c < choices.size(); c++) {
-                if (df.getStudents()[s].getChoicesA()[i] == choices[c]) isAdded = true;
+                if (df.m_students[s].getChoicesA()[i] == choices[c]) isAdded = true;
             }
-            if (! isAdded && df.getStudents()[s].getChoicesA()[i] != df.getStudyHall()) {
-                connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[df.getStudents()[s].getChoicesA()[i]]));
-                connection_ids[s].push_back(df.getStudents()[s].getChoicesA()[i]);
-                choices.push_back(df.getStudents()[s].getChoicesA()[i]);
+            if (! isAdded && df.m_students[s].getChoicesA()[i] != df.getStudyHall()) {
+                connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[df.m_students[s].getChoicesA()[i]]));
+                connection_ids[s].push_back(df.m_students[s].getChoicesA()[i]);
+                choices.push_back(df.m_students[s].getChoicesA()[i]);
+                total++;
             }
         }
         //this means they're club leader (supposedly)
         if (choices.size() == 1) continue;
         connection_ids[s].push_back(df.getStudyHall());
         connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[df.getStudyHall()]));
+        total++;
     }
     
     //Add upper and cost maps
     ListDigraph::ArcMap<int> upper_map(flowGraph);
     ListDigraph::ArcMap<double> cost_map(flowGraph);
     
-    for (int i = 0; i < df.getStudents().size(); i++) {
+    for (int i = 0; i < df.m_students.size(); i++) {
         upper_map[student_arcs[i]] = 1;
         cost_map[student_arcs[i]] = 0;
     }
     
-    for (int s = 0; s < df.getStudents().size(); s++) {
+    for (int s = 0; s < df.m_students.size(); s++) {
         
         //find cost of connection arcs
         
@@ -163,19 +166,19 @@ void process_a() {
             double rnd = ((double) rand() / (RAND_MAX));
             double offset = 0;
             
-            if (df.getStudents()[s].getGrade() == 12) {
+            if (df.m_students[s].getGrade() == 12) {
                 rnd *= 0.02;
                 offset = 0.01;
             }
-            else if (df.getStudents()[s].getGrade() == 11) {
+            else if (df.m_students[s].getGrade() == 11) {
                 rnd *= 0.03;
                 offset = 0.015;
             }
-            else if (df.getStudents()[s].getGrade() == 10) {
+            else if (df.m_students[s].getGrade() == 10) {
                 rnd *= 0.04;
                 offset = 0.02;
             }
-            else if (df.getStudents()[s].getGrade() == 9) {
+            else if (df.m_students[s].getGrade() == 9) {
                 rnd *= 0.05;
                 offset = 0.025;
             }
@@ -191,28 +194,26 @@ void process_a() {
     
     
     
-    for (int i = 0; i < df.getClubs().size(); i++) {
+    for (int i = 0; i < df.m_clubs.size(); i++) {
         upper_map[club_arcs[i]] = CLUB_CAPACITY;
         cost_map[club_arcs[i]] = 0;
     }
     
-    upper_map[club_arcs[df.getStudyHall()]] = CLUB_CAPACITY;
+    upper_map[club_arcs[df.getStudyHall()]] = CLUB_CAPACITY * df.m_clubs.size();
     cost_map[club_arcs[df.getStudyHall()]] = 0;
-    
     //use lemon to process flow
     NetworkSimplex<ListDigraph, int, double> flow(flowGraph);
     flow.upperMap(upper_map);
     flow.costMap(cost_map);
-    flow.stSupply(start, end, df.getStudents().size());
+    flow.stSupply(start, end, df.m_students.size());
     NetworkSimplex<ListDigraph, int, double>::ProblemType pt = flow.run();
-    
     if (pt == NetworkSimplex<ListDigraph>::INFEASIBLE || pt == NetworkSimplex<ListDigraph>::UNBOUNDED) show_error("Could not find optimal club assignments.", 20);
     
-    for (int s = 0; s < df.getStudents().size(); s++) {
+    for (int s = 0; s < df.m_students.size(); s++) {
         for (int c = 0; c < connection_arcs[s].size(); c++) {
             int f = flow.flow(connection_arcs[s][c]);
             if (f == 1) {
-                df.getStudents()[s].setAWeek(connection_ids[s][c]);
+                df.m_students[s].setAWeek(connection_ids[s][c]);
                 break;
             }
         }
@@ -231,19 +232,19 @@ void process_b() {
     vector<vector<int>> connection_ids;
     
     //Add student nodes and arcs
-    for (int i = 0; i < df.getStudents().size(); i++) {
+    for (int i = 0; i < df.m_students.size(); i++) {
         student_nodes.push_back(flowGraph.addNode());
         student_arcs.push_back(flowGraph.addArc(start, student_nodes.back()));
     }
     
     //Add club nodes and arcs
-    for (int i = 0; i < df.getClubs().size(); i++) {
+    for (int i = 0; i < df.m_clubs.size(); i++) {
         club_nodes.push_back(flowGraph.addNode());
         club_arcs.push_back(flowGraph.addArc(club_nodes.back(), end));
     }
     
     //Add connection arcs
-    for (int s = 0; s < df.getStudents().size(); s++) {
+    for (int s = 0; s < df.m_students.size(); s++) {
         vector<int> h1;
         vector<ListDigraph::Arc> h2;
         connection_ids.push_back(h1);
@@ -251,16 +252,16 @@ void process_b() {
         vector<int> choices;
         
         //add in connection arcs
-        for (int i = 0; i < df.getStudents()[s].getChoicesB().size(); i++) {
+        for (int i = 0; i < df.m_students[s].getChoicesB().size(); i++) {
             bool isAdded = false;
             for (int c = 0; c < choices.size(); c++) {
-                if (df.getStudents()[s].getChoicesB()[i] == choices[c]) isAdded = true;
+                if (df.m_students[s].getChoicesB()[i] == choices[c]) isAdded = true;
             }
-            if (df.getStudents()[s].getAWeek() == df.getStudents()[s].getChoicesB()[i]) isAdded = true;
-            if (! isAdded && df.getStudents()[s].getChoicesB()[i] != df.getStudyHall()) {
-                connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[df.getStudents()[s].getChoicesB()[i]]));
-                connection_ids[s].push_back(df.getStudents()[s].getChoicesB()[i]);
-                choices.push_back(df.getStudents()[s].getChoicesB()[i]);
+            if (df.m_students[s].getAWeek() == df.m_students[s].getChoicesB()[i]) isAdded = true;
+            if (! isAdded && df.m_students[s].getChoicesB()[i] != df.getStudyHall()) {
+                connection_arcs[s].push_back(flowGraph.addArc(student_nodes[s], club_nodes[df.m_students[s].getChoicesB()[i]]));
+                connection_ids[s].push_back(df.m_students[s].getChoicesB()[i]);
+                choices.push_back(df.m_students[s].getChoicesB()[i]);
             }
         }
         //this means they're club leader (supposedly)
@@ -272,12 +273,12 @@ void process_b() {
     ListDigraph::ArcMap<int> upper_map(flowGraph);
     ListDigraph::ArcMap<double> cost_map(flowGraph);
     
-    for (int i = 0; i < df.getStudents().size(); i++) {
+    for (int i = 0; i < df.m_students.size(); i++) {
         upper_map[student_arcs[i]] = 1;
         cost_map[student_arcs[i]] = 0;
     }
     
-    for (int s = 0; s < df.getStudents().size(); s++) {
+    for (int s = 0; s < df.m_students.size(); s++) {
         
         
         //find cost of connection arcs
@@ -288,19 +289,19 @@ void process_b() {
             double rnd = ((double) rand() / (RAND_MAX));
             double offset = 0;
             
-            if (df.getStudents()[s].getGrade() == 12) {
+            if (df.m_students[s].getGrade() == 12) {
                 rnd *= 0.02;
                 offset = 0.01;
             }
-            else if (df.getStudents()[s].getGrade() == 11) {
+            else if (df.m_students[s].getGrade() == 11) {
                 rnd *= 0.03;
                 offset = 0.015;
             }
-            else if (df.getStudents()[s].getGrade() == 10) {
+            else if (df.m_students[s].getGrade() == 10) {
                 rnd *= 0.04;
                 offset = 0.02;
             }
-            else if (df.getStudents()[s].getGrade() == 9) {
+            else if (df.m_students[s].getGrade() == 9) {
                 rnd *= 0.05;
                 offset = 0.025;
             }
@@ -311,7 +312,7 @@ void process_b() {
             cost *= 100;
         }
     }
-    for (int i = 0; i < df.getClubs().size(); i++) {
+    for (int i = 0; i < df.m_clubs.size(); i++) {
         upper_map[club_arcs[i]] = CLUB_CAPACITY;
         cost_map[club_arcs[i]] = 0;
     }
@@ -322,16 +323,17 @@ void process_b() {
     NetworkSimplex<ListDigraph, int, double> flow(flowGraph);
     flow.upperMap(upper_map);
     flow.costMap(cost_map);
-    flow.stSupply(start, end, df.getStudents().size());
+    flow.stSupply(start, end, df.m_students.size());
     NetworkSimplex<ListDigraph, int, double>::ProblemType pt = flow.run();
     
     if (pt == NetworkSimplex<ListDigraph>::INFEASIBLE || pt == NetworkSimplex<ListDigraph>::UNBOUNDED) show_error(string("Could not find optimal club assignments."), 20);
     
-    for (int s = 0; s < df.getStudents().size(); s++) {
+    for (int s = 0; s < df.m_students.size(); s++) {
+        
         for (int c = 0; c < connection_arcs[s].size(); c++) {
             int f = flow.flow(connection_arcs[s][c]);
             if (f == 1) {
-                df.getStudents()[s].setBWeek(connection_ids[s][c]);
+                df.m_students[s].setBWeek(connection_ids[s][c]);
                 break;
             }
         }

@@ -151,18 +151,9 @@ void DataFile::readFile() {
     //for (int i = 0; i < m_clubs.size(); i++) cout << m_clubs[i].getName() << endl;
 }
 
-vector<Club> DataFile::getClubs() {
-    return m_clubs;
-}
-
 int DataFile::getStudyHall() {
     return m_sh;
 }
-
-vector<Student> DataFile::getStudents() {
-    return m_students;
-}
-
 string DataFile::remove_unnecessary_chars(string str) {
     char char_array[str.length() + 1];
     int added = 0;
@@ -220,7 +211,6 @@ void DataFile::outputResults() {
     f_out.open(m_file_path + "_results.tsv");
     f_out << "Name\tA Week\tB Week";
     for (int i = 0; i < m_students.size(); i++) {
-        cout << m_students[i].getName() << " " << m_students[i].getAWeek() << endl;
         f_out << "\n" << m_students[i].getName() << "\t" << m_clubs[m_students[i].getAWeek()].getName() << "\t" << m_clubs[m_students[i].getBWeek()].getName();
     }
     f_out.close();
@@ -238,14 +228,14 @@ void DataFile::outputResults() {
     for (int i = 0; i < m_students.size(); i++) {
         
         for (int c = 0; c < m_students[i].getChoicesA().size(); c++) {
-            if (c == m_students[i].getAWeek()) {
+            if (m_students[i].getChoicesA()[c] == m_students[i].getAWeek()) {
                 total_count_a[c]++;
                 break;
             }
         }
         
         for (int c = 0; c < m_students[i].getChoicesB().size(); c++) {
-            if (c == m_students[i].getBWeek()) {
+            if (m_students[i].getChoicesB()[c] == m_students[i].getBWeek()) {
                 total_count_b[c]++;
                 break;
             }
