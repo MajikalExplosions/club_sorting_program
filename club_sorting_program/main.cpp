@@ -25,15 +25,18 @@ using namespace std;
 
 bool has_suffix(string, string);
 void show_error(string, int);
+void dlog(string);
 void process_a();
 void process_b();
 
 DataFile df("");
+bool debug_mode;
 
 int main() {
+    debug_mode = false;
     //Display starting instructions
     cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-    cout << "CSUS Club Sorting Program v1.1.0 by MajikalExplosions\n\nInstructions are in Google Drive at https://drive.google.com/drive/folders/1HdzcqUyV1fmEUPqvuYxvMsm8z0VeFbsf" << endl << endl;
+    cout << "CSUS Club Sorting Program v1.1.1 by MajikalExplosions\n\nInstructions are in Google Drive at https://drive.google.com/drive/folders/1HdzcqUyV1fmEUPqvuYxvMsm8z0VeFbsf" << endl << endl;
     cout << "Enter the data file path and press Enter to continue." << endl;
     string fp;
     getline(cin, fp);
@@ -41,8 +44,10 @@ int main() {
     if (fp.at(fp.size() - 1) == ' ') fp = fp.substr(0, fp.size() - 1);
     if (! ((has_suffix(fp, ".tsv") || has_suffix(fp, ".TSV")))) show_error(string("File is not a .TSV"), 10);
     fp.erase(std::remove(fp.begin(), fp.end(), '\\'), fp.end());
+    dlog("Uh oh.");
     df = DataFile(fp);
     df.readFile();
+    dlog("Read file.");
     srand(std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1));
     process_a();
     process_b();
@@ -62,6 +67,10 @@ bool has_suffix(string fullString, string ending) {
 void show_error(string desc, int code) {
     cout << "[ERROR] " << desc << " (Error Code " << code << ")" << endl;
     exit(0);
+}
+
+void dlog(string desc) {
+    if (debug_mode) cout << "[DEBUG] " << desc << endl;
 }
 
 string to_uppercase(string str) {
@@ -111,7 +120,7 @@ void process_a() {
         club_nodes.push_back(flowGraph.addNode());
         club_arcs.push_back(flowGraph.addArc(club_nodes.back(), end));
     }
-    
+    dlog("1");
     //Add connection arcs
     int total = 0;
     for (int s = 0; s < df.m_students.size(); s++) {
@@ -147,6 +156,7 @@ void process_a() {
         total++;
     }
     
+    dlog("2");
     //Add upper and cost maps
     ListDigraph::ArcMap<int> upper_map(flowGraph);
     ListDigraph::ArcMap<double> cost_map(flowGraph);
@@ -155,7 +165,6 @@ void process_a() {
         upper_map[student_arcs[i]] = 1;
         cost_map[student_arcs[i]] = 0;
     }
-    
     for (int s = 0; s < df.m_students.size(); s++) {
         
         //find cost of connection arcs
@@ -171,16 +180,16 @@ void process_a() {
                 offset = 0.01;
             }
             else if (df.m_students[s].getGrade() == 11) {
-                rnd *= 0.03;
-                offset = 0.015;
-            }
-            else if (df.m_students[s].getGrade() == 10) {
-                rnd *= 0.04;
+                rnd *= 0.02;
                 offset = 0.02;
             }
+            else if (df.m_students[s].getGrade() == 10) {
+                rnd *= 0.02;
+                offset = 0.03;
+            }
             else if (df.m_students[s].getGrade() == 9) {
-                rnd *= 0.05;
-                offset = 0.025;
+                rnd *= 0.02;
+                offset = 0.04;
             }
             else rnd *= 10;
             
@@ -193,6 +202,7 @@ void process_a() {
     }
     
     
+    dlog("3");
     
     for (int i = 0; i < df.m_clubs.size(); i++) {
         upper_map[club_arcs[i]] = CLUB_CAPACITY;
@@ -208,6 +218,9 @@ void process_a() {
     flow.stSupply(start, end, df.m_students.size());
     NetworkSimplex<ListDigraph, int, double>::ProblemType pt = flow.run();
     if (pt == NetworkSimplex<ListDigraph>::INFEASIBLE || pt == NetworkSimplex<ListDigraph>::UNBOUNDED) show_error("Could not find optimal club assignments.", 20);
+    
+    
+    dlog("4");
     
     for (int s = 0; s < df.m_students.size(); s++) {
         for (int c = 0; c < connection_arcs[s].size(); c++) {
@@ -294,18 +307,19 @@ void process_b() {
                 offset = 0.01;
             }
             else if (df.m_students[s].getGrade() == 11) {
-                rnd *= 0.03;
-                offset = 0.015;
-            }
-            else if (df.m_students[s].getGrade() == 10) {
-                rnd *= 0.04;
+                rnd *= 0.02;
                 offset = 0.02;
             }
+            else if (df.m_students[s].getGrade() == 10) {
+                rnd *= 0.02;
+                offset = 0.03;
+            }
             else if (df.m_students[s].getGrade() == 9) {
-                rnd *= 0.05;
-                offset = 0.025;
+                rnd *= 0.02;
+                offset = 0.04;
             }
             else rnd *= 10;
+            
             ListDigraph::Arc arc1 = connection_arcs[s][c];
             upper_map[arc1] = 1;
             cost_map[arc1] = cost * (rnd + 1 + offset);
@@ -316,7 +330,7 @@ void process_b() {
         upper_map[club_arcs[i]] = CLUB_CAPACITY;
         cost_map[club_arcs[i]] = 0;
     }
-    upper_map[club_arcs[df.getStudyHall()]] = CLUB_CAPACITY;
+    upper_map[club_arcs[df.getStudyHall()]] = CLUB_CAPACITY * df.m_clubs.size();
     cost_map[club_arcs[df.getStudyHall()]] = 0;
     
     //use lemon to process flow

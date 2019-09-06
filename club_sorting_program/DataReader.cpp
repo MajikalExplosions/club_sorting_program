@@ -43,7 +43,7 @@ void DataFile::readFile() {
         
         data_table.push_back(parsedRow);
     }
-    
+    cout << "Finding columns..." << endl;
     //Find column headings
     int COL_NAME = -1;
     int COL_GRADE = -1;
@@ -54,7 +54,6 @@ void DataFile::readFile() {
     
     for (int col_num = 0; col_num < data_table[0].size(); col_num++) {
         string col = to_uppercase(data_table[0][col_num]);
-        
         col.erase(remove(col.begin(), col.end(), '"'), col.end());
         if (col.find("NAME") != -1) {
             //This is the student name column
@@ -64,12 +63,12 @@ void DataFile::readFile() {
             //This is the grade column
             COL_GRADE = col_num;
         }
-        else if ((col.find("FIRST") != -1 || col.find("1st") != -1) && (col.find(" A") != -1 || col.find("A ") != -1)) {
+        else if ((col.find("FIRST") != -1 || col.find("1ST") != -1) && (col.find(" A") != -1 || col.find("A ") != -1)) {
             //This is the first club column
             COL_CHOICE_START_A = col_num;
             NUM_CHOICES_A = 1;
         }
-        else if ((col.find("FIRST") != -1 || col.find("1st") != -1) && (col.find(" B") != -1 || col.find("B ") != -1)) {
+        else if ((col.find("FIRST") != -1 || col.find("1ST") != -1) && (col.find(" B") != -1 || col.find("B ") != -1)) {
             //This is the first club column
             COL_CHOICE_START_B = col_num;
             NUM_CHOICES_B = 1;
@@ -81,6 +80,7 @@ void DataFile::readFile() {
             NUM_CHOICES_B++;
         }
     }
+    cout << "Reading data..." << endl;
     //Create Student and Club objects
     for (int row = 1; row < data_table.size(); row++) {
         if (data_table[row][COL_NAME].compare("") == 0) break;
@@ -98,7 +98,6 @@ void DataFile::readFile() {
         else if (to_uppercase(data_table[row][COL_GRADE]).compare("SENIOR") == 0 || to_uppercase(data_table[row][COL_GRADE]).compare("12") == 0) {
             m_students[m_students.size() - 1].setGrade(12);
         }
-        
         
         for (int c = COL_CHOICE_START_A; c < COL_CHOICE_START_A + NUM_CHOICES_A; c++) {
             bool in = false;
@@ -118,7 +117,6 @@ void DataFile::readFile() {
             }
             cl.setA(true);
         }
-        
         for (int c = COL_CHOICE_START_B; c < COL_CHOICE_START_B + NUM_CHOICES_B; c++) {
             bool in = false;
             Club cl = Club("");
@@ -149,6 +147,7 @@ void DataFile::readFile() {
     }
     
     //for (int i = 0; i < m_clubs.size(); i++) cout << m_clubs[i].getName() << endl;
+    cout << "Finished reading data." << endl;
 }
 
 int DataFile::getStudyHall() {
