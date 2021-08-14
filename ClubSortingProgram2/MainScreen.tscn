@@ -9,11 +9,11 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="Label" parent="."]
-margin_right = 541.0
+[node name="Title" type="Label" parent="."]
+margin_right = 1600.0
 margin_bottom = 60.0
 custom_fonts/font = ExtResource( 1 )
-text = "Club Sorting Program"
+text = "Club Assignments Generator"
 align = 1
 valign = 1
 __meta__ = {

@@ -3,6 +3,7 @@ using System;
 
 public class MainScreen : Container
 {
+    public static MainScreen Instance;
     // Declare member variables here. Examples:
     // private int a = 2;
     // private string b = "text";
@@ -18,4 +19,9 @@ public class MainScreen : Container
 //  {
 //      
 //  }
+
+    public void AlertError(string error)
+    {
+        //TODO Add error box or something
+    }
 }

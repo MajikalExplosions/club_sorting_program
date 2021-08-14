@@ -16,6 +16,10 @@ config/icon="res://icon.png"
 
 [display]
 
+window/size/width=1600
+window/size/height=900
+window/dpi/allow_hidpi=true
+window/energy_saving/keep_screen_on=false
 window/stretch/mode="viewport"
 window/stretch/aspect="keep"
 
