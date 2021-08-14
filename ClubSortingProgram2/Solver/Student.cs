@@ -9,12 +9,12 @@ namespace ClubSortingProgram2.Solver
     public class Student
     {
         public readonly string Name;
-        public Club[] Assignment { get; private set; }
+        public Club[] Assignments { get; private set; }
 
         public Student(string name)
         {
             Name = name;
-            Assignment = new Club[Solver.Settings.Weeks];
+            Assignments = new Club[Solver.Settings.Weeks];
         }
     }
 }

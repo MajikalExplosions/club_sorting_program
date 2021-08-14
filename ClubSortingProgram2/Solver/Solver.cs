@@ -50,12 +50,38 @@ namespace ClubSortingProgram2.Solver
         {
             if (_solved) return;
             //TODO
+
+            _solved = true;
         }
 
-        public Club[] GetStudentAssignments(string name)
+        public Club[] GetClubsFor(string name)
         {
-            //TODO
-            return null;
+            if (! _solved)
+            {
+                MainScreen.Instance.AlertError("Club assignments have not been created yet.");
+                return null;
+            }
+            if (! _students.ContainsKey(name))
+            {
+                MainScreen.Instance.AlertError("Student \"" + name + "\" does not exist.");
+                return null;
+            }
+            return _students[name].Assignments;
+        }
+
+        public Student[] GetStudentsIn(string name)
+        {
+            if (!_solved)
+            {
+                MainScreen.Instance.AlertError("Club assignments have not been created yet.");
+                return null;
+            }
+            if (!_clubs.ContainsKey(name))
+            {
+                MainScreen.Instance.AlertError("Club \"" + name + "\" does not exist.");
+                return null;
+            }
+            return _clubs[name].Assignments.ToArray();
         }
 
         public struct SolverSettings
