@@ -28,7 +28,7 @@ namespace ClubSortingProgram2.Solver
             {
                 _students.Add(s.Name, s);
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 MainScreen.Instance.AlertError("Found duplicate student name: \"" + s.Name + "\".");
             }
@@ -40,7 +40,7 @@ namespace ClubSortingProgram2.Solver
             {
                 _clubs.Add(c.Name, c);
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 MainScreen.Instance.AlertError("Found duplicate club name: \"" + c.Name + "\".");
             }
@@ -89,12 +89,16 @@ namespace ClubSortingProgram2.Solver
             public readonly int MaximumCapacity;
             public readonly int Weeks;
             public readonly string DefaultClubName;
+            public readonly bool RequestsHaveOrder;
+            public readonly int MaxRequests;
 
-            public SolverSettings(int mc, int w, string dcn)
+            public SolverSettings(int mc, int w, string dcn, bool rho, int mr)
             {
                 MaximumCapacity = mc;
                 Weeks = w;
                 DefaultClubName = dcn;
+                RequestsHaveOrder = rho;
+                MaxRequests = mr;
             }
         }
     }
