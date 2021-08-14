@@ -1,0 +1,15 @@
+[gd_scene format=2]
+
+[node name="MainScreen" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_left = 459.461
+margin_top = 281.364
+margin_right = 499.461
+margin_bottom = 321.364
+color = Color( 1, 0, 0, 1 )
