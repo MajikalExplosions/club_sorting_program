@@ -1,5 +1,9 @@
-<Project Sdk="Godot.NET.Sdk/3.3.0">
+﻿<Project Sdk="Godot.NET.Sdk/3.3.0">
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.OrTools" Version="9.0.9048" />
+    <PackageReference Include="Google.OrTools.runtime.win-x64" Version="9.0.9048" />
+  </ItemGroup>
 </Project>
