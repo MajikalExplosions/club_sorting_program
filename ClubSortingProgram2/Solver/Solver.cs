@@ -68,9 +68,10 @@ namespace ClubSortingProgram2.Solver
 
             MinCostFlow minCostFlow = new MinCostFlow();
             //TODO Create supply/sink nodes
-            //TODO Assign node numbers to students and groups and fill in maps
+            //TODO Assign node numbers to students and groups and fill in maps (in separate function?)
             _createAssignmentArcs();
             //TODO Set supply and sink
+            //TODO Create supply/sink arcs
             MinCostFlowBase.Status status = minCostFlow.SolveMaxFlowWithMinCost();
             if (status != MinCostFlowBase.Status.OPTIMAL)
             {
