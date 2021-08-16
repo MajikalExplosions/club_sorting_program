@@ -9,40 +9,40 @@ namespace ClubSortingProgram2.Solver
     public class Solver
     {
         public static readonly SolverSettings Settings;
-        private readonly SortedList<string, Club> _clubs;
-        private readonly SortedList<string, Student> _students;
+        private readonly SortedList<string, Group> _groups;
+        private readonly SortedList<string, Person> _people;
 
         private bool _solved;
 
         public Solver()
         {
-            _clubs = new SortedList<string, Club>();
-            _students = new SortedList<string, Student>();
+            _groups = new SortedList<string, Group>();
+            _people = new SortedList<string, Person>();
 
-            _clubs.Add(Settings.DefaultClubName, new Club(Settings.DefaultClubName, true));
+            _groups.Add(Settings.DefaultGroupName, new Group(Settings.DefaultGroupName, true));
         }
 
-        public void AddStudent(Student s)
+        public void AddPerson(Person s)
         {
             try
             {
-                _students.Add(s.Name, s);
+                _people.Add(s.Name, s);
             }
             catch (ArgumentException)
             {
-                MainScreen.Instance.AlertError("Found duplicate student name: \"" + s.Name + "\".");
+                MainScreen.Instance.AlertError("Found duplicate name: \"" + s.Name + "\".");
             }
         }
 
-        public void AddClub(Club c)
+        public void AddGroup(Group c)
         {
             try
             {
-                _clubs.Add(c.Name, c);
+                _groups.Add(c.Name, c);
             }
             catch (ArgumentException)
             {
-                MainScreen.Instance.AlertError("Found duplicate club name: \"" + c.Name + "\".");
+                MainScreen.Instance.AlertError("Found duplicate group name: \"" + c.Name + "\".");
             }
         }
 
@@ -54,49 +54,49 @@ namespace ClubSortingProgram2.Solver
             _solved = true;
         }
 
-        public Club[] GetClubsFor(string name)
-        {
-            if (! _solved)
-            {
-                MainScreen.Instance.AlertError("Club assignments have not been created yet.");
-                return null;
-            }
-            if (! _students.ContainsKey(name))
-            {
-                MainScreen.Instance.AlertError("Student \"" + name + "\" does not exist.");
-                return null;
-            }
-            return _students[name].Assignments;
-        }
-
-        public Student[] GetStudentsIn(string name)
+        public Group[] GetGroups(string name)
         {
             if (!_solved)
             {
-                MainScreen.Instance.AlertError("Club assignments have not been created yet.");
+                MainScreen.Instance.AlertError("Group assignments have not been created yet.");
                 return null;
             }
-            if (!_clubs.ContainsKey(name))
+            if (!_people.ContainsKey(name))
             {
-                MainScreen.Instance.AlertError("Club \"" + name + "\" does not exist.");
+                MainScreen.Instance.AlertError("Person \"" + name + "\" does not exist.");
                 return null;
             }
-            return _clubs[name].Assignments.ToArray();
+            return _people[name].Assignments;
+        }
+
+        public Person[] GetMembers(string name)
+        {
+            if (!_solved)
+            {
+                MainScreen.Instance.AlertError("Group assignments have not been created yet.");
+                return null;
+            }
+            if (!_groups.ContainsKey(name))
+            {
+                MainScreen.Instance.AlertError("Group \"" + name + "\" does not exist.");
+                return null;
+            }
+            return _groups[name].Members.ToArray();
         }
 
         public struct SolverSettings
         {
             public readonly int MaximumCapacity;
-            public readonly int Weeks;
-            public readonly string DefaultClubName;
+            public readonly int Sections;
+            public readonly string DefaultGroupName;
             public readonly bool RequestsHaveOrder;
             public readonly int MaxRequests;
 
-            public SolverSettings(int mc, int w, string dcn, bool rho, int mr)
+            public SolverSettings(int mc, int s, string dgn, bool rho, int mr)
             {
                 MaximumCapacity = mc;
-                Weeks = w;
-                DefaultClubName = dcn;
+                Sections = s;
+                DefaultGroupName = dgn;
                 RequestsHaveOrder = rho;
                 MaxRequests = mr;
             }

@@ -2,20 +2,20 @@
 
 namespace ClubSortingProgram2.Solver
 {
-    public class Student
+    public class Person
     {
         public readonly string Name;
-        public Club[] Assignments { get; private set; }
-        public List<Club>[] Requests { get; private set; }
+        public Group[] Assignments { get; private set; }
+        public List<Group>[] Requests { get; private set; }
 
-        public Student(string name)
+        public Person(string name)
         {
             Name = name;
-            Assignments = new Club[Solver.Settings.Weeks];
-            Requests = new List<Club>[Solver.Settings.Weeks];
+            Assignments = new Group[Solver.Settings.Sections];
+            Requests = new List<Group>[Solver.Settings.Sections];
         }
 
-        public void SetRequests(int week, List<Club> requests)
+        public void SetRequests(int week, List<Group> requests)
         {
             if (week < 0 || week > Requests.Length - 1)
             {
@@ -29,7 +29,7 @@ namespace ClubSortingProgram2.Solver
             }
 
             if (Requests[week].Count != 0) Requests[week].Clear();
-            foreach (Club c in requests) Requests[week].Add(c);
+            foreach (Group c in requests) Requests[week].Add(c);
         }
     }
 }
