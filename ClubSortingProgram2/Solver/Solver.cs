@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.OrTools.Graph;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,10 @@ namespace ClubSortingProgram2.Solver
         private readonly SortedList<string, Group> _groups;
         private readonly SortedList<string, Person> _people;
 
+        private readonly Dictionary<string, int[]> _assignmentArcMap;
+        private readonly Dictionary<string, int> _peopleNodeMap;
+        private readonly Dictionary<string, int> _groupNodeMap;
+
         private bool _solved;
 
         public Solver()
@@ -24,6 +29,11 @@ namespace ClubSortingProgram2.Solver
 
         public void AddPerson(Person s)
         {
+            if (_solved)
+            {
+                MainScreen.Instance.AlertError("Could not add person \"" + s.Name + "\" because assignments have been created.");
+                return;
+            }
             try
             {
                 _people.Add(s.Name, s);
@@ -36,6 +46,11 @@ namespace ClubSortingProgram2.Solver
 
         public void AddGroup(Group c)
         {
+            if (_solved)
+            {
+                MainScreen.Instance.AlertError("Could not add club \"" + c.Name + "\" because assignments have been created.");
+                return;
+            }
             try
             {
                 _groups.Add(c.Name, c);
@@ -49,8 +64,21 @@ namespace ClubSortingProgram2.Solver
         public void Solve()
         {
             if (_solved) return;
-            //TODO Actually do some solving
+            //TODO Finish this section (see notes)
 
+            MinCostFlow minCostFlow = new MinCostFlow();
+            //TODO Create supply/sink nodes
+            //TODO Assign node numbers to students and groups and fill in maps
+            _createAssignmentArcs();
+            //TODO Set supply and sink
+            MinCostFlowBase.Status status = minCostFlow.SolveMaxFlowWithMinCost();
+            if (status != MinCostFlowBase.Status.OPTIMAL)
+            {
+                MainScreen.Instance.AlertError("Could not find optimal solution.");
+                return;
+            }
+
+            //TODO Find answers and update objects
             _solved = true;
         }
 
@@ -82,6 +110,12 @@ namespace ClubSortingProgram2.Solver
                 return null;
             }
             return _groups[name].Members.ToArray();
+        }
+
+        private void _createAssignmentArcs()
+        {
+            //TODO Create arcs for assignments
+            //TODO Fill in arc map with data so we can fetch results.
         }
 
         public struct SolverSettings
