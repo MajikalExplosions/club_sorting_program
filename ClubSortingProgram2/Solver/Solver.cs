@@ -49,7 +49,7 @@ namespace ClubSortingProgram2.Solver
         public void Solve()
         {
             if (_solved) return;
-            //TODO
+            //TODO Actually do some solving
 
             _solved = true;
         }
