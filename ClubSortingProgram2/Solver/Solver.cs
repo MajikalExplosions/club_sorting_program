@@ -137,23 +137,23 @@ namespace ClubSortingProgram2.Solver
             foreach (string name in _people.Keys)
             {
                 //Go through choices for each person
-                _assignmentArcMap.Add(name, new int[Settings.MaxRequests + 1]);
-                int numr = _people[name].Requests[_section].Count;
+                int numReq = _people[name].Requests[_section].Count;
+                _assignmentArcMap.Add(name, new int[numReq + 1]);
 
-                if (numr != Settings.MaxRequests)
+                if (numReq > Settings.MaxRequests)
                 {
-                    MainScreen.Instance.AlertError("Person " + name + " has " + numr.ToString() + " requests, expected " + Settings.MaxRequests.ToString() + ".");
+                    MainScreen.Instance.AlertError("Person " + name + " has too many requests (" + numReq.ToString() + ").");
                     return false;
                 }
 
-                for (int i = 0; i < Settings.MaxRequests; i++)
+                for (int i = 0; i < numReq; i++)
                 {
                     Group request = _people[name].Requests[_section][i];
                     int arc = mcf.AddArcWithCapacityAndUnitCost(_peopleNodeMap[name], _groupNodeMap[request.Name], 1, Settings.RequestWeights[i]);
                     _assignmentArcMap[name][i] = arc;
                 }
-                int arc2 = mcf.AddArcWithCapacityAndUnitCost(_peopleNodeMap[name], _groupNodeMap[Settings.DefaultGroupName], 1, Settings.RequestWeights[Settings.MaxRequests]);
-                _assignmentArcMap[name][Settings.MaxRequests] = arc2;
+                int arc2 = mcf.AddArcWithCapacityAndUnitCost(_peopleNodeMap[name], _groupNodeMap[Settings.DefaultGroupName], 1, Settings.RequestWeights[numReq]);
+                _assignmentArcMap[name][numReq] = arc2;
             }
             return true;
         }
