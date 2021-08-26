@@ -13,14 +13,18 @@ namespace ClubSortingProgram2.Solver
         private readonly SortedList<string, Group> _groups;
         private readonly SortedList<string, Person> _people;
 
-        private readonly Dictionary<string, int[]> _assignmentArcMap;
-        private readonly Dictionary<string, int> _peopleNodeMap;
-        private readonly Dictionary<string, int> _groupNodeMap;
+        private Dictionary<string, int[]> _assignmentArcMap;
+        private Dictionary<string, int> _peopleNodeMap;
+        private Dictionary<string, int> _groupNodeMap;
+
+        private const int SINK = 0;
 
         private bool _solved;
+        private int _section;
 
-        public Solver()
+        public Solver(int section)
         {
+            _section = section;
             _groups = new SortedList<string, Group>();
             _people = new SortedList<string, Person>();
 
@@ -67,11 +71,17 @@ namespace ClubSortingProgram2.Solver
             //TODO Finish this section (see notes)
 
             MinCostFlow minCostFlow = new MinCostFlow();
-            //TODO Create supply/sink nodes
-            //TODO Assign node numbers to students and groups and fill in maps (in separate function?)
-            _createAssignmentArcs();
-            //TODO Set supply and sink
-            //TODO Create supply/sink arcs
+            _populateNodeMaps();
+            _createGroupCapacityArcs(minCostFlow);
+            _createAssignmentArcs(minCostFlow);
+
+            //Set supplies
+            minCostFlow.SetNodeSupply(SINK, _people.Count);
+            foreach (string name in _peopleNodeMap.Keys)
+            {
+                minCostFlow.SetNodeSupply(_peopleNodeMap[name], 1);
+            }
+
             MinCostFlowBase.Status status = minCostFlow.SolveMaxFlowWithMinCost();
             if (status != MinCostFlowBase.Status.OPTIMAL)
             {
@@ -113,10 +123,56 @@ namespace ClubSortingProgram2.Solver
             return _groups[name].Members.ToArray();
         }
 
-        private void _createAssignmentArcs()
+        private void _createGroupCapacityArcs(MinCostFlow mcf)
         {
-            //TODO Create arcs for assignments
-            //TODO Fill in arc map with data so we can fetch results.
+            foreach (string name in _groupNodeMap.Keys)
+            {
+                mcf.AddArcWithCapacityAndUnitCost(_groupNodeMap[name], SINK, _groups[name].MaximumCapacity, 0);
+            }
+        }
+
+        private bool _createAssignmentArcs(MinCostFlow mcf)
+        {
+            _assignmentArcMap = new Dictionary<string, int[]>();
+            foreach (string name in _people.Keys)
+            {
+                //Go through choices for each person
+                _assignmentArcMap.Add(name, new int[Settings.MaxRequests + 1]);
+                int numr = _people[name].Requests[_section].Count;
+
+                if (numr != Settings.MaxRequests)
+                {
+                    MainScreen.Instance.AlertError("Person " + name + " has " + numr.ToString() + " requests, expected " + Settings.MaxRequests.ToString() + ".");
+                    return false;
+                }
+
+                for (int i = 0; i < Settings.MaxRequests; i++)
+                {
+                    Group request = _people[name].Requests[_section][i];
+                    int arc = mcf.AddArcWithCapacityAndUnitCost(_peopleNodeMap[name], _groupNodeMap[request.Name], 1, Settings.RequestWeights[i]);
+                    _assignmentArcMap[name][i] = arc;
+                }
+                int arc2 = mcf.AddArcWithCapacityAndUnitCost(_peopleNodeMap[name], _groupNodeMap[Settings.DefaultGroupName], 1, Settings.RequestWeights[Settings.MaxRequests]);
+                _assignmentArcMap[name][Settings.MaxRequests] = arc2;
+            }
+            return true;
+        }
+
+        private void _populateNodeMaps()
+        {
+            _peopleNodeMap = new Dictionary<string, int>();
+            _groupNodeMap = new Dictionary<string, int>();
+
+            int index = SINK + 1;
+            foreach (string name in _people.Keys)
+            {
+                _peopleNodeMap[name] = index++;
+            }
+            foreach (string name in _groups.Keys)
+            {
+                _groupNodeMap[name] = index++;
+            }
+            _groupNodeMap[Settings.DefaultGroupName] = index;
         }
 
         public struct SolverSettings
@@ -126,14 +182,32 @@ namespace ClubSortingProgram2.Solver
             public readonly string DefaultGroupName;
             public readonly bool RequestsHaveOrder;
             public readonly int MaxRequests;
+            public readonly int[] RequestWeights;
 
-            public SolverSettings(int mc, int s, string dgn, bool rho, int mr)
+            public SolverSettings(int mc, int s, string dgn, bool rho, int mr, int requestWeightMultiplier)
             {
                 MaximumCapacity = mc;
                 Sections = s;
                 DefaultGroupName = dgn;
                 RequestsHaveOrder = rho;
                 MaxRequests = mr;
+                RequestWeights = new int[MaxRequests + 1];
+                RequestWeights[0] = 1;
+                if (RequestsHaveOrder)
+                {
+                    for (int i = 1; i < RequestWeights.Length; i++)
+                    {
+                        RequestWeights[i] = RequestWeights[i - 1] * requestWeightMultiplier;
+                    }
+                }
+                else
+                {
+                    for (int i = 1; i < RequestWeights.Length - 1; i++)
+                    {
+                        RequestWeights[i] = RequestWeights[i - 1];
+                    }
+                    RequestWeights[RequestWeights.Length - 1] = (int)Math.Pow(requestWeightMultiplier, MaxRequests);
+                }
             }
         }
     }

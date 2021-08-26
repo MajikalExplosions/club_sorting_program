@@ -27,9 +27,11 @@ namespace ClubSortingProgram2.Solver
                 MainScreen.Instance.AlertError(Name + " has too many requests: " + requests.Count + ".");
                 return;
             }
-
             if (Requests[week].Count != 0) Requests[week].Clear();
-            foreach (Group c in requests) Requests[week].Add(c);
+            foreach (Group c in requests)
+            {
+                if (!Requests[week].Contains(c) && !c.Name.Equals(Solver.Settings.DefaultGroupName)) Requests[week].Add(c);
+            }
         }
     }
 }

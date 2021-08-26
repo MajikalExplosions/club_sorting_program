@@ -7,12 +7,12 @@ namespace ClubSortingProgram2.Solver
         public readonly string Name;
         public List<Person> Members { get; private set; }
 
-        private readonly int _maximumCapacity;
+        public readonly int MaximumCapacity;
 
         public Group(string name, bool defaultGroup = false)
         {
             Name = name;
-            _maximumCapacity = defaultGroup ? int.MaxValue : Solver.Settings.MaximumCapacity;
+            MaximumCapacity = defaultGroup ? int.MaxValue : Solver.Settings.MaximumCapacity;
             Members = new List<Person>();
         }
     }
