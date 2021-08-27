@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://style/TitleMontserrat.tres" type="DynamicFont" id=1]
+[ext_resource path="res://style/TextRecursive.tres" type="DynamicFont" id=2]
+[ext_resource path="res://style/TextRecursiveSmall.tres" type="DynamicFont" id=3]
 
 [node name="MainScreen" type="Control"]
 anchor_right = 1.0
@@ -13,9 +15,226 @@ __meta__ = {
 margin_right = 1600.0
 margin_bottom = 60.0
 custom_fonts/font = ExtResource( 1 )
-text = "Club Assignments Generator"
+custom_colors/font_color = Color( 0.94902, 0.639216, 0.396078, 1 )
+text = "Group Assignment Generator"
 align = 1
 valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Settings" type="Control" parent="."]
+margin_top = 60.0
+margin_right = 600.0
+margin_bottom = 436.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label_Header" type="Label" parent="Settings"]
+margin_right = 600.0
+margin_bottom = 48.0
+custom_fonts/font = ExtResource( 2 )
+text = "Settings"
+align = 1
+valign = 1
+uppercase = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="Settings/Label_Header"]
+margin_left = 360.0
+margin_top = 8.0
+margin_right = 384.0
+margin_bottom = 38.0
+custom_fonts/font = ExtResource( 3 )
+text = "?"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Input_MGC" type="LineEdit" parent="Settings"]
+margin_left = 360.0
+margin_top = 48.0
+margin_right = 480.0
+margin_bottom = 96.0
+custom_fonts/font = ExtResource( 2 )
+max_length = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label_MGC" type="Label" parent="Settings"]
+margin_top = 48.0
+margin_right = 360.0
+margin_bottom = 96.0
+custom_fonts/font = ExtResource( 2 )
+text = "Max Group Capacity: "
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Input_S" type="LineEdit" parent="Settings"]
+margin_left = 360.0
+margin_top = 104.0
+margin_right = 480.0
+margin_bottom = 152.0
+custom_fonts/font = ExtResource( 2 )
+max_length = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label_S" type="Label" parent="Settings"]
+margin_top = 104.0
+margin_right = 360.0
+margin_bottom = 152.0
+custom_fonts/font = ExtResource( 2 )
+text = "# of Sections: "
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Input_DGN" type="LineEdit" parent="Settings"]
+margin_left = 360.0
+margin_top = 160.0
+margin_right = 600.0
+margin_bottom = 208.0
+custom_fonts/font = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label_DGN" type="Label" parent="Settings"]
+margin_top = 160.0
+margin_right = 360.0
+margin_bottom = 208.0
+custom_fonts/font = ExtResource( 2 )
+text = "Default Group Name: "
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Input_RHO" type="CheckButton" parent="Settings"]
+margin_top = 216.0
+margin_right = 600.0
+margin_bottom = 264.0
+custom_fonts/font = ExtResource( 2 )
+text = "Requests Have Order:            "
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Input_MR" type="LineEdit" parent="Settings"]
+margin_left = 360.0
+margin_top = 272.0
+margin_right = 480.0
+margin_bottom = 320.0
+custom_fonts/font = ExtResource( 2 )
+max_length = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label_MR" type="Label" parent="Settings"]
+margin_top = 272.0
+margin_right = 360.0
+margin_bottom = 320.0
+custom_fonts/font = ExtResource( 2 )
+text = "Max Requests: "
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Input_RWM" type="LineEdit" parent="Settings"]
+margin_left = 360.0
+margin_top = 328.0
+margin_right = 480.0
+margin_bottom = 376.0
+custom_fonts/font = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label_RWM" type="Label" parent="Settings"]
+margin_top = 328.0
+margin_right = 360.0
+margin_bottom = 376.0
+custom_fonts/font = ExtResource( 2 )
+text = "Request Weight Multiplier: "
+align = 2
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SettingsHelp" type="WindowDialog" parent="."]
+margin_left = 300.0
+margin_top = 150.0
+margin_right = 1300.0
+margin_bottom = 750.0
+custom_fonts/title_font = ExtResource( 3 )
+popup_exclusive = true
+window_title = "Help: Settings"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HelpText" type="TextEdit" parent="SettingsHelp"]
+margin_right = 1000.0
+margin_bottom = 600.0
+custom_fonts/font = ExtResource( 3 )
+text = "Max Group Capacity: The maximum capacity of groups. This excludes the default group, which has unlimited capacity. Range: [0, 9999], integers only. 0 is unlimited.
+
+# of Sections: The number of sections that each person should be in. Sections are exclusive, so if a person is in a group in one section, they will not be in that group in any other section. Range: [1, 99], integers only.
+
+Default Group Name: The name of the default group. The default group is the group that a person is placed into if there is no other group that they have requested that still has capacity. It has infinite capacity.
+
+Requests Have Order: Whether requests should have different weights based on order. If on, the first request will be preferred over the second, and so on. The weight of the first request will be 'x' times higher than the second, where 'x' is the Request Weight Multiplier (see below). If off, all groups will have the same weight, except the default group whose weight will be 'n' ^ 'x', where n is Max Requests (see below) and x is the Request Weight Multiplier.
+
+Max Requests: The maximum number of requests a person may have, per section. This doesn't include the default group. Range: [1, 99], integers only.
+
+Request Weight Multiplier: How important each request is compared to the previous. Range: all non-negative real numbers (0 and decimals included). Leave as is unless you know what you are doing."
+readonly = true
+wrap_enabled = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Selector_File" type="FileDialog" parent="."]
+margin_left = 300.0
+margin_top = 150.0
+margin_right = 1300.0
+margin_bottom = 750.0
+rect_min_size = Vector2( 300, 105 )
+window_title = "Select File"
+mode = 0
+access = 2
+filters = PoolStringArray( "*.csv; Comma-Separated Values", "*.tsv; Tab-Separated Values" )
+show_hidden_files = true
+current_dir = "/Users/Bootcamp/Documents/GitHub/club_sorting_program/ClubSortingProgram2"
+current_path = "/Users/Bootcamp/Documents/GitHub/club_sorting_program/ClubSortingProgram2/"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button_SelectFile" type="Button" parent="."]
+margin_left = 220.0
+margin_top = 480.0
+margin_right = 380.0
+margin_bottom = 528.0
+custom_fonts/font = ExtResource( 2 )
+text = "Select File"
 __meta__ = {
 "_edit_use_anchors_": false
 }

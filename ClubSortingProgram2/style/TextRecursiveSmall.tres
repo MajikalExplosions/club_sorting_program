@@ -3,7 +3,6 @@
 [ext_resource path="res://style/Recursive-VariableFont_CASL,CRSV,MONO,slnt,wght.ttf" type="DynamicFontData" id=1]
 
 [resource]
-size = 24
 use_mipmaps = true
 use_filter = true
 font_data = ExtResource( 1 )
