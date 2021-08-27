@@ -200,11 +200,11 @@ text = "Max Group Capacity: The maximum capacity of groups. This excludes the de
 
 Default Group Name: The name of the default group. The default group is the group that a person is placed into if there is no other group that they have requested that still has capacity. It has infinite capacity.
 
-Requests Have Order: Whether requests should have different weights based on order. If on, the first request will be preferred over the second, and so on. The weight of the first request will be 'x' times higher than the second, where 'x' is the Request Weight Multiplier (see below). If off, all groups will have the same weight, except the default group whose weight will be 'n' ^ 'x', where n is Max Requests (see below) and x is the Request Weight Multiplier.
+Requests Have Order: Whether requests should have different weights based on order. If on, the first request will be preferred over the second, and so on. The cost of the second request will be 'x' times higher than the first, where 'x' is the Request Weight Multiplier (see below). The program will try to minimize total cost, so it will attempt to pick the first option if possible. If off, all groups will have the same cost, except the default group whose cost will be 'n' ^ 'x', where n is Max Requests (see below) and x is the Request Weight Multiplier. 
 
 Max Requests: The maximum number of requests a person may have, per section. This doesn't include the default group. Range: [1, 99], integers only.
 
-Request Weight Multiplier: How important each request is compared to the previous. Range: all non-negative real numbers (0 and decimals included). Leave as is unless you know what you are doing."
+Request Weight Multiplier: How important each request is compared to the previous. Range: all non-negative real numbers (0 and decimals included). Default: 2. Leave as is unless you know what you are doing."
 readonly = true
 wrap_enabled = true
 __meta__ = {
@@ -217,7 +217,7 @@ margin_top = 150.0
 margin_right = 1300.0
 margin_bottom = 750.0
 rect_min_size = Vector2( 300, 105 )
-window_title = "Select File"
+window_title = "Open a File"
 mode = 0
 access = 2
 filters = PoolStringArray( "*.csv; Comma-Separated Values", "*.tsv; Tab-Separated Values" )
