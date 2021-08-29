@@ -124,7 +124,7 @@ namespace ClubSortingProgram2.Solver
             }
         }
 
-        private bool _createAssignmentArcs(MinCostFlow mcf)
+        private void _createAssignmentArcs(MinCostFlow mcf)
         {
             _assignmentArcMap = new Dictionary<string, int[]>();
             foreach (string name in _people.Keys)
@@ -147,7 +147,6 @@ namespace ClubSortingProgram2.Solver
                 int arc2 = mcf.AddArcWithCapacityAndUnitCost(_peopleNodeMap[name], _groupNodeMap[Settings.DefaultGroupName], 1, Settings.RequestWeights[numReq]);
                 _assignmentArcMap[name][numReq] = arc2;
             }
-            return true;
         }
 
         private void _populateNodeMaps()

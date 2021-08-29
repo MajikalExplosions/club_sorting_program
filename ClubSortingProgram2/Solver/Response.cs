@@ -31,9 +31,9 @@ namespace ClubSortingProgram2.Solver
 
             //Read contents
             string contents = File.ReadAllText(fileName, Encoding.UTF8);
-            List<List<string>> parsedLines = null;
+            List<List<string>> parsedLines;
 
-            //Parse to lines; returns null if file couldn't be parsed
+            //Parse to lines
             if (type == "CSV")
             {
                 parsedLines = _parseToLines(contents, ',');
@@ -46,9 +46,6 @@ namespace ClubSortingProgram2.Solver
             {
                 throw new SolverException(202, string.Format("Unsupported file type {0}.", type));
             }
-
-            //Make sure it was parsed successfully; if it wasn't, errors would have been thrown.
-            if (parsedLines == null) return;
 
             //Check to make sure there's at least one line so toArray doesn't break
             parsedLines = _padLength(_removeEmpty(parsedLines));
