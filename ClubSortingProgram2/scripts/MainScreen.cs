@@ -17,9 +17,4 @@ public class MainScreen : Container
     //  {
     //
     //  }
-
-    public void AlertError(string error)
-    {
-        //TODO Add error box or something
-    }
 }

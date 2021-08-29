@@ -35,8 +35,7 @@ namespace ClubSortingProgram2.Solver
         {
             if (_solved)
             {
-                MainScreen.Instance.AlertError("Could not add person \"" + s.Name + "\" because assignments have been created.");
-                return;
+                throw new SolverException(300, string.Format("Could not add person \"{0}\" because assignments have already been created.", s.Name));
             }
             try
             {
@@ -44,7 +43,7 @@ namespace ClubSortingProgram2.Solver
             }
             catch (ArgumentException)
             {
-                MainScreen.Instance.AlertError("Found duplicate name: \"" + s.Name + "\".");
+                throw new SolverException(301, string.Format("Found duplicate person name \"{0}\".", s.Name));
             }
         }
 
@@ -52,8 +51,7 @@ namespace ClubSortingProgram2.Solver
         {
             if (_solved)
             {
-                MainScreen.Instance.AlertError("Could not add club \"" + c.Name + "\" because assignments have been created.");
-                return;
+                throw new SolverException(302, string.Format("Could not add group \"{0}\" because assignments have already been created.", c.Name));
             }
             try
             {
@@ -61,7 +59,7 @@ namespace ClubSortingProgram2.Solver
             }
             catch (ArgumentException)
             {
-                MainScreen.Instance.AlertError("Found duplicate group name: \"" + c.Name + "\".");
+                throw new SolverException(303, string.Format("Found duplicate group name \"{0}\".", c.Name));
             }
         }
 
@@ -85,8 +83,7 @@ namespace ClubSortingProgram2.Solver
             MinCostFlowBase.Status status = minCostFlow.SolveMaxFlowWithMinCost();
             if (status != MinCostFlowBase.Status.OPTIMAL)
             {
-                MainScreen.Instance.AlertError("Could not find optimal solution.");
-                return;
+                throw new SolverException(304, string.Format("Coud not find optimal solution."));
             }
 
             //TODO Find answers and update objects
@@ -97,13 +94,11 @@ namespace ClubSortingProgram2.Solver
         {
             if (!_solved)
             {
-                MainScreen.Instance.AlertError("Group assignments have not been created yet.");
-                return null;
+                throw new SolverException(305, string.Format("Assignments have not been created yet."));
             }
             if (!_people.ContainsKey(name))
             {
-                MainScreen.Instance.AlertError("Person \"" + name + "\" does not exist.");
-                return null;
+                throw new SolverException(306, string.Format("Person \"{0}\" does not exist", name));
             }
             return _people[name].Assignments;
         }
@@ -112,13 +107,11 @@ namespace ClubSortingProgram2.Solver
         {
             if (!_solved)
             {
-                MainScreen.Instance.AlertError("Group assignments have not been created yet.");
-                return null;
+                throw new SolverException(307, string.Format("Assignments have not been created yet."));
             }
             if (!_groups.ContainsKey(name))
             {
-                MainScreen.Instance.AlertError("Group \"" + name + "\" does not exist.");
-                return null;
+                throw new SolverException(308, string.Format("Group \"{0}\" does not exist", name));
             }
             return _groups[name].Members.ToArray();
         }
@@ -142,8 +135,7 @@ namespace ClubSortingProgram2.Solver
 
                 if (numReq > Settings.MaxRequests)
                 {
-                    MainScreen.Instance.AlertError("Person " + name + " has too many requests (" + numReq.ToString() + ").");
-                    return false;
+                    throw new SolverException(309, string.Format("Person {0} has too many requests ({1}).", name, numReq));
                 }
 
                 for (int i = 0; i < numReq; i++)

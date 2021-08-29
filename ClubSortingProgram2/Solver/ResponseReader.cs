@@ -28,8 +28,7 @@ namespace ClubSortingProgram2.Solver
             int index = Array.IndexOf(GetHeaders(r), header);
             if (index == -1)
             {
-                MainScreen.Instance.AlertError("Header " + header + " not found in file.");
-                return null;
+                throw new SolverException(210, string.Format("Header {0} not found in file.", header));
             }
             return r.GetColumn(index);
         }

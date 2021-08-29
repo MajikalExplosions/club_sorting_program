@@ -19,13 +19,11 @@ namespace ClubSortingProgram2.Solver
         {
             if (week < 0 || week > Requests.Length - 1)
             {
-                MainScreen.Instance.AlertError(week.ToString() + "out of bounds; there are only " + Requests.Length + "weeks.");
-                return;
+                throw new SolverException(100, string.Format("{0} out of bounds; there are only {1} section(s).", week, Requests.Length));
             }
             if (requests.Count > Solver.Settings.MaxRequests)
             {
-                MainScreen.Instance.AlertError(Name + " has too many requests: " + requests.Count + ".");
-                return;
+                throw new SolverException(101, string.Format("{0} has too many requests ({1}, max. {2})", Name, requests.Count, Solver.Settings.MaxRequests));
             }
             if (Requests[week].Count != 0) Requests[week].Clear();
             foreach (Group c in requests)

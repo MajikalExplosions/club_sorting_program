@@ -19,16 +19,14 @@ namespace ClubSortingProgram2.Solver
             //Check for file existence
             if (!File.Exists(fileName))
             {
-                MainScreen.Instance.AlertError("File " + fileName + " doesn't exist.");
-                return;
+                throw new SolverException(200, string.Format("File {0} doesn't exist.", fileName));
             }
 
             //Check for file extension
             string type = fileName.Substring(fileName.LastIndexOf('.') + 1).ToUpper();
             if (fileName.LastIndexOf('.') == -1)
             {
-                MainScreen.Instance.AlertError("Missing filename extension.");
-                return;
+                throw new SolverException(201, string.Format("Missing filename extension."));
             }
 
             //Read contents
@@ -44,10 +42,9 @@ namespace ClubSortingProgram2.Solver
             {
                 parsedLines = _parseToLines(contents, '\t');
             }
-            //TODO Maybe add support for other file types?
             else
             {
-                MainScreen.Instance.AlertError("Unsupported file type.");
+                throw new SolverException(202, string.Format("Unsupported file type {0}.", type));
             }
 
             //Make sure it was parsed successfully; if it wasn't, errors would have been thrown.
@@ -57,8 +54,7 @@ namespace ClubSortingProgram2.Solver
             parsedLines = _padLength(_removeEmpty(parsedLines));
             if (parsedLines.Count == 0)
             {
-                MainScreen.Instance.AlertError("Empty file.");
-                return;
+                throw new SolverException(203, string.Format("File {0} is empty.", fileName));
             }
             _data = toArray(parsedLines);
             _success = true;
@@ -73,11 +69,11 @@ namespace ClubSortingProgram2.Solver
         {
             if (!_success)
             {
-                MainScreen.Instance.AlertError("Could not get row from bad file.");
+                throw new SolverException(204, string.Format("Could not get row from unread file."));
             }
             if (row > _data.GetLength(0) || row < 0)
             {
-                MainScreen.Instance.AlertError("Could not get data row " + row.ToString() + ": out of bounds.");
+                throw new SolverException(205, string.Format("Data row {0} is out of bounds.", row));
             }
 
             //Create array
@@ -93,11 +89,11 @@ namespace ClubSortingProgram2.Solver
         {
             if (!_success)
             {
-                MainScreen.Instance.AlertError("Could not get column from bad file.");
+                throw new SolverException(206, string.Format("Could not get row from unread file."));
             }
             if (col > _data.GetLength(1) || col < 0)
             {
-                MainScreen.Instance.AlertError("Could not get data col " + col.ToString() + ": out of bounds.");
+                throw new SolverException(207, string.Format("Data col {0} is out of bounds.", col));
             }
 
             //Create array
@@ -168,8 +164,7 @@ namespace ClubSortingProgram2.Solver
             }
             if (escaped || inQuotes || currentString.Trim().Length != 0)
             {
-                MainScreen.Instance.AlertError("Could not parse file (incomplete).");
-                return null;
+                throw new SolverException(208, string.Format("Could not parse incomplete file."));
             }
             return final;
         }
@@ -211,8 +206,7 @@ namespace ClubSortingProgram2.Solver
             {
                 if (lst[i].Count != numCols)
                 {
-                    MainScreen.Instance.AlertError("Could not convert List<List<string>> to string[,].");
-                    return null;
+                    throw new SolverException(209, string.Format("Could not convert List<List<string>> to string[,]."));
                 }
                 for (int j = 0; j < numCols; j++)
                 {
